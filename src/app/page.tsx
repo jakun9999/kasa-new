@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { fetchServer } from "@/lib/api-server";
 import { propertiesSchema } from "@/schemas/property";
-import { MessageIcon } from "@/components/icons/MessageIcon";
-import { Button } from "@/components/ui/Button";
+import { MessageIcon } from "@/components/icons/message-icon";
+import { Button } from "@/components/ui/button";
 
 const colors = ["red", "orange", "gray"] as const;
 
