@@ -1,21 +1,38 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import { fetchServer } from "@/lib/api-server";
 import { propertiesSchema } from "@/schemas/property";
-import { MessageIcon } from "@/components/icons/message-icon";
-import { Button } from "@/components/ui/button";
+import { PropertyCard } from "@/components/ui/cards/property-card";
+import {
+  PropertyCardGridSkeleton,
+  propertyGridClassName,
+} from "@/components/ui/cards/property-card-skeleton";
 
-const colors = ["red", "gray"] as const;
+async function PropertyList() {
+  // Timer de démo : visible uniquement en `next dev`, pour voir le skeleton.
+  if (process.env.NODE_ENV === "development") {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
 
-export default async function Home() {
   const response = await fetchServer("/api/properties", { auth: false });
   if (!response.ok) {
-    return <div>Error: {response.statusText}</div>;
+    return <p>Impossible de charger les logements ({response.statusText}).</p>;
   }
-  const responseData = await response.json();
-  const properties = propertiesSchema.parse(responseData);
-  console.log(properties);
+  const properties = propertiesSchema.parse(await response.json());
   return (
-    <div className="flex flex-col gap-8 p-8">
+    <ul className={propertyGridClassName}>
+      {properties.map((property, index) => (
+        <li key={property.id} className="min-w-0">
+          <PropertyCard property={property} priority={index === 0} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export default function Home() {
+  return (
+    <div className="flex flex-col gap-8 px-4 py-8 md:p-8">
       <Image
         src="/logos/kasa_logo_name.svg"
         alt="Kasa"
@@ -24,33 +41,9 @@ export default async function Home() {
         priority
       />
       <h1 className="text-h1 font-bold">Hello World</h1>
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-4">
-          {colors.map((color) => (
-            <Button key={color} size="long" color={color} icon={<MessageIcon />}>
-              label
-            </Button>
-          ))}
-        </div>
-        <div className="flex items-center gap-4">
-          {colors.map((color) => (
-            <Button key={color} size="medium" color={color} icon={<MessageIcon />}>
-              label
-            </Button>
-          ))}
-        </div>
-        <div className="flex items-center gap-4">
-          {colors.map((color) => (
-            <Button
-              key={color}
-              size="short"
-              color={color}
-              icon={<MessageIcon />}
-              aria-label="Message"
-            />
-          ))}
-        </div>
-      </div>
+      <Suspense fallback={<PropertyCardGridSkeleton />}>
+        <PropertyList />
+      </Suspense>
     </div>
   );
 }

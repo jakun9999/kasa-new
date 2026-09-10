@@ -2,13 +2,14 @@
 
 /* Tokens Figma : tokens-couleurs.md, tokens-typo.md, tokens-boutons.md */
 @theme {
-  --color-kasa-red: #99331A;
-  --color-kasa-red-dark: #842C16;
-  --color-kasa-cream: #FFFBF9;
-  --color-kasa-black: #0D0D0D;
-  --color-kasa-white: #FFFFFF;
-  --color-kasa-gray-light: #F5F5F5;
+  --color-kasa-red: #99331a;
+  --color-kasa-red-dark: #842c16;
+  --color-kasa-cream: #fffbf9;
+  --color-kasa-black: #0d0d0d;
+  --color-kasa-white: #ffffff;
+  --color-kasa-gray-light: #f5f5f5;
   --color-kasa-gray-dark: #565656;
+  --color-kasa-red-light: #dabfb9;
 
   --text-display: 6.25rem;
   --text-display--line-height: 1.426;

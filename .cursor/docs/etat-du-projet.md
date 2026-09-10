@@ -32,7 +32,7 @@ Dernière mise à jour : **10 septembre 2026**.
 - [x] 1. Next.js + GitHub
 - [x] 2. API propriétés
 - [x] 3. Tokens Tailwind (issue #03) + Button 9 variantes (issue #04) — layout Header/Footer encore à faire
-- [ ] 4. Accueil liste
+- [ ] 4. Accueil liste — cards + skeleton + grille 1/2/3 cols (Header encore à faire)
 - [ ] 5. Détail + carrousel testé
 - [ ] 6. Favoris `localStorage` testés
 - [ ] 7. Sitemap + Schema.org + Lighthouse vert
