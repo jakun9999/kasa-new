@@ -14,7 +14,7 @@ Dernière mise à jour : **10 septembre 2026**.
 - Typo : **Inter** 400–900, 8–100px, line-height **142,6 %** (`1.426`) partout — voir `tokens-typo.md` (pas Montserrat)
 - Logos SVG : `figma-export/logos/` — gradients encore proches de `#FF6060` ; **ne pas retracer**
 - Icônes : `figma-export/icons/` (11 SVG) — voir `tokens-assets.md`
-- Boutons CTA : **9** = short 32×32 fixe / medium hug pad 16 / long hug pad 32 × couleurs Main red, Dark orange, Gris light — voir `tokens-boutons.md`. Radius 5px (short) et 10px (medium/long).
+- Boutons CTA : 3 tailles (short 32×32 / medium hug pad 16 / long hug pad 32) × 2 couleurs de départ (**Main red**, **Gris light**). **Dark orange** = hover/active du rouge, jamais l’état initial. Radius 5px (short) et 10px (medium/long).
 - **Livraison incrémentale** : pas d’autre composant / page tant que Matthieu ne l’a pas demandé. Il garde la maîtrise du code pour l’oral.
 - Backlog Notion : 6 stories sprint 1 (dont **login** et **bouton messagerie**) ; page Favoris + envoi message + CRUD hôte + inscription = sprint 2. Détail : `backlog.md`.
 

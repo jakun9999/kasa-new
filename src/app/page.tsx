@@ -4,7 +4,7 @@ import { propertiesSchema } from "@/schemas/property";
 import { MessageIcon } from "@/components/icons/message-icon";
 import { Button } from "@/components/ui/button";
 
-const colors = ["red", "orange", "gray"] as const;
+const colors = ["red", "gray"] as const;
 
 export default async function Home() {
   const response = await fetchServer("/api/properties", { auth: false });

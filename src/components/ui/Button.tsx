@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-export type ButtonColor = "red" | "orange" | "gray";
+export type ButtonColor = "red" | "gray";
 export type ButtonSize = "short" | "medium" | "long";
 
 type ButtonBase = Omit<
@@ -26,8 +26,7 @@ type HugButtonProps = ButtonBase & {
 export type ButtonProps = ShortButtonProps | HugButtonProps;
 
 const colorClass: Record<ButtonColor, string> = {
-  red: "bg-kasa-red text-kasa-white ring-1 ring-inset ring-kasa-white",
-  orange: "bg-kasa-red-dark text-kasa-white ring-1 ring-inset ring-kasa-white",
+  red: "bg-kasa-red text-kasa-white ring-1 ring-inset ring-kasa-white hover:bg-kasa-red-dark active:bg-kasa-red-dark",
   gray: "bg-kasa-gray-light text-kasa-gray-dark",
 };
 
@@ -38,11 +37,12 @@ const sizeClass: Record<ButtonSize, string> = {
 };
 
 const baseClass =
-  "inline-flex items-center justify-center overflow-hidden whitespace-nowrap text-body font-medium cursor-pointer [&_svg]:size-4 [&_svg]:shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kasa-black";
+  "inline-flex items-center justify-center overflow-hidden whitespace-nowrap text-body font-medium cursor-pointer transition-colors [&_svg]:size-4 [&_svg]:shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kasa-black";
 
 /**
- * CTA Kasa : 3 tailles × 3 couleurs.
- * Short = 32×32 icône seule. Medium/long = largeur hug (`w-fit`), jamais une largeur fixe.
+ * CTA Kasa : 3 tailles × 2 couleurs de départ (rouge clair / gris).
+ * Le rouge foncé n’est jamais l’état initial : c’est le hover/active du rouge.
+ * Short = 32×32 icône seule. Medium/long = largeur hug (`w-fit`).
  */
 export function Button({
   size,
