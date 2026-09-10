@@ -1,12 +1,13 @@
 # État du projet (à tenir à jour)
 
-Dernière mise à jour : **9 septembre 2026** (backlog Notion capturé).
+Dernière mise à jour : **10 septembre 2026**.
 
 ## Décisions prises
 
 - Deadline soutenance : **27 septembre 2026**
+- Front : ce repo `kasa-new` (Next.js App Router, TypeScript, Tailwind v4)
 - Ce dossier `CDC/` = brief lecture seule
-- Docs agents créées ; **aucun** fichier applicatif
+- Thème Tailwind : couleurs `kasa-*`, Inter 400–900, line-height `1.426`, logos `public/logos/` = copies inchangées de `figma-export/logos/`
 - Maquette de travail : [KASA-NEW `CaJq57v4Wb29KMa7ZW5PXv`](https://www.figma.com/design/CaJq57v4Wb29KMa7ZW5PXv/KASA-NEW?node-id=0-1&t=kzearpZQdrgeHYgT-1)
 - Fetch anonyme de ce fichier : **403** (privé)
 - Palette extraite (voir `tokens-couleurs.md`) : Main red `#99331A`, Dark orange `#842C16`, Light orange `#FFFBF9`, Noir `#0D0D0D`, Blanc `#FFFFFF`, Gris light `#F5F5F5`, Gris dark `#565656`
@@ -19,18 +20,18 @@ Dernière mise à jour : **9 septembre 2026** (backlog Notion capturé).
 
 ## Décisions ouvertes
 
-- [ ] Dossier du front (`p8/kasa` vs autre)
-- [ ] TypeScript ou JavaScript
-- [ ] Sass vs CSS Modules
+- [x] Dossier du front → **ce repo `kasa-new`**
+- [x] TypeScript ou JavaScript → **TypeScript**
+- [x] Sass vs CSS Modules → **Tailwind v4** (`@theme` dans `globals.css`)
 - [ ] JSDoc seul vs Storybook
 - [ ] Contenu exact sprint 1 vs 2 → **tranché** (voir `backlog.md`)
 - [ ] Hébergement front + stratégie backend en démo
 
 ## Sprint 1
 
-- [ ] 1. Next.js + GitHub
-- [ ] 2. API propriétés
-- [ ] 3. Layout Figma
+- [x] 1. Next.js + GitHub
+- [x] 2. API propriétés
+- [x] 3. Tokens Tailwind (issue #03) — layout Header/Footer encore à faire
 - [ ] 4. Accueil liste
 - [ ] 5. Détail + carrousel testé
 - [ ] 6. Favoris `localStorage` testés
