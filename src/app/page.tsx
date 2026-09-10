@@ -1,6 +1,15 @@
 import Image from "next/image";
+import { fetchServer } from "@/lib/api-server";
+import { propertiesSchema } from "@/schemas/property";
 
-export default function Home() {
+export default async function Home() {
+  const response = await fetchServer("/api/properties", { auth: false });
+  if (!response.ok) {
+    return <div>Error: {response.statusText}</div>;
+  }
+  const responseData = await response.json();
+  const properties = propertiesSchema.parse(responseData);
+  console.log(properties);
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
