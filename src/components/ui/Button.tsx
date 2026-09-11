@@ -8,6 +8,10 @@ type ButtonBase = Omit<
   "children" | "color"
 > & {
   color: ButtonColor;
+  /** Classe Tailwind de largeur. Défaut : `w-8` (short) ou `w-fit` (medium/long). */
+  width?: string;
+  /** Classe Tailwind de hauteur. Défaut : `h-8` (short) ou `h-fit` (medium/long). */
+  height?: string;
 };
 
 type ShortButtonProps = ButtonBase & {
@@ -31,32 +35,54 @@ const colorClass: Record<ButtonColor, string> = {
 };
 
 const sizeClass: Record<ButtonSize, string> = {
-  short: "h-8 w-8 rounded-kasa-short p-0",
-  medium: "h-fit w-fit gap-0 rounded-kasa-cta px-4 py-2",
-  long: "h-fit w-fit gap-2.5 rounded-kasa-cta px-8 py-2",
+  short: "rounded-kasa-short",
+  medium: "gap-0 rounded-kasa-cta",
+  long: "gap-1 rounded-kasa-cta",
+};
+
+const sizePadding: Record<ButtonSize, string> = {
+  short: "p-0",
+  medium: "px-4 py-2",
+  long: "px-8 py-2",
+};
+
+const defaultWidth: Record<ButtonSize, string> = {
+  short: "w-8",
+  medium: "w-fit",
+  long: "w-fit",
+};
+
+const defaultHeight: Record<ButtonSize, string> = {
+  short: "h-8",
+  medium: "h-fit",
+  long: "h-fit",
 };
 
 const baseClass =
-  "inline-flex items-center justify-center overflow-hidden whitespace-nowrap text-body font-medium cursor-pointer transition-colors [&_svg]:size-4 [&_svg]:shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kasa-black";
+  "box-border inline-flex items-center justify-center overflow-hidden whitespace-nowrap text-body font-medium cursor-pointer transition-colors [&_svg]:size-4 [&_svg]:shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kasa-black";
 
 /**
- * CTA Kasa : 3 tailles × 2 couleurs de départ (rouge clair / gris).
- * Le rouge foncé n’est jamais l’état initial : c’est le hover/active du rouge.
- * Short = 32×32 icône seule. Medium/long = largeur hug (`w-fit`).
+ * CTA Kasa : 3 variants Figma (`size`) × 2 couleurs.
+ * `width` / `height` optionnels : classes Tailwind qui remplacent le hug / 32×32
+ * et désactivent le padding du variant (sinon `px-8` empêche un `w-12.5`).
  */
 export function Button({
   size,
   color,
   icon,
+  width,
+  height,
   className = "",
   type = "button",
   children,
   ...rest
 }: ButtonProps) {
+  const hasExplicitBox = Boolean(width || height);
+
   return (
     <button
       type={type}
-      className={`${baseClass} ${colorClass[color]} ${sizeClass[size]} ${className}`.trim()}
+      className={`${baseClass} ${colorClass[color]} ${sizeClass[size]} ${hasExplicitBox ? "min-w-0 min-h-0 p-0" : sizePadding[size]} ${width ?? defaultWidth[size]} ${height ?? defaultHeight[size]} ${className}`.trim()}
       {...rest}
     >
       {icon}
