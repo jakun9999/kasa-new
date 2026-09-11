@@ -32,10 +32,28 @@ async function PropertyList() {
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-8 px-4 py-8 md:p-8">
-      <Suspense fallback={<PropertyCardGridSkeleton />}>
-        <PropertyList />
-      </Suspense>
-    </div>
+    <main className="flex flex-col gap-10 max-w-278.75 items-center">
+      <div className="flex flex-col gap-2 items-center justify-center">
+        <h1 className="text-h1 font-bold text-kasa-red text-center h-11.5">
+          Chez vous, partout et ailleurs
+        </h1>
+        <p>
+          Avec Kasa, vivez des séjours uniques dans des hébergements chaleureux,
+          sélectionnés avec soin par nos hôtes.
+        </p>
+      </div>
+      <Image
+        src="/hero.jpg"
+        alt="Hero"
+        width={1115}
+        height={458}
+        className="w-278.75 h-114.5 rounded-[20px]"
+      />
+      <div className="flex flex-col gap-8 w-full">
+        <Suspense fallback={<PropertyCardGridSkeleton />}>
+          <PropertyList />
+        </Suspense>
+      </div>
+    </main>
   );
 }

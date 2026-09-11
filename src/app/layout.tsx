@@ -20,10 +20,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className={`${inter.variable} h-full`}>
       <body className="min-h-full flex flex-col font-sans antialiased">
-        <div className="flex w-full max-w-360 flex-col gap-10 items-center pt-10 mx-auto px-4 lg:px-0">
+        <div className="mx-auto flex min-h-full w-full max-w-360 flex-1 flex-col items-center gap-10 px-4 pt-10 lg:px-0">
           <Header />
           {children}
-          <Footer />
+          <div className="mt-auto w-full">
+            <Footer />
+          </div>
         </div>
       </body>
     </html>
