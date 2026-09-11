@@ -32,7 +32,7 @@ async function PropertyList() {
 
 export default function Home() {
   return (
-    <main className="flex flex-col gap-10 max-w-278.75 items-center">
+    <main className="flex flex-col gap-10 max-w-278.75 px-2 lg:px-0 items-center mx-auto">
       <div className="flex flex-col gap-2 items-center justify-center">
         <h1 className="text-h1 font-bold text-kasa-red text-center h-11.5">
           Chez vous, partout et ailleurs
