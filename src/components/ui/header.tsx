@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { PlusIcon } from "@/components/icons/plus-icon";
 import { FavoriteIcon } from "@/components/icons/favorite-icon";
 import { MessageIcon } from "@/components/icons/message-icon";
@@ -17,8 +18,32 @@ const mobileLinks = [
   { href: "/favoris", label: "Favoris" },
 ] as const;
 
+function pathIsActive(pathname: string, href: string) {
+  if (href === "/") {
+    return pathname === "/";
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function menuLinkClass(active: boolean, extra: string) {
+  return `${extra} ${
+    active
+      ? "font-bold text-kasa-red"
+      : "font-normal text-kasa-black hover:font-bold hover:text-kasa-red"
+  }`;
+}
+
+function iconPathClass(active: boolean) {
+  return active
+    ? "fill-kasa-red stroke-kasa-red"
+    : "fill-kasa-white stroke-kasa-red group-hover:fill-kasa-red";
+}
+
 export default function Header() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const favorisActive = pathIsActive(pathname, "/favoris");
+  const messagesActive = pathIsActive(pathname, "/messages");
 
   useEffect(() => {
     if (!open) {
@@ -39,12 +64,22 @@ export default function Header() {
       <header className="hidden lg:flex items-center justify-between w-195.5 h-[56.05px] bg-white shadow-xs px-25 rounded-kasa-cta">
         <div className="flex items-center gap-[49.86px]">
           <div className="flex items-center gap-7">
-            <Link href="/" className="text-kasa-black text-body font-normal">
+            <Link
+              href="/"
+              className={menuLinkClass(pathIsActive(pathname, "/"), "text-body")}
+              aria-current={pathIsActive(pathname, "/") ? "page" : undefined}
+            >
               Accueil
             </Link>
             <Link
               href="/about"
-              className="text-kasa-black text-body font-normal"
+              className={menuLinkClass(
+                pathIsActive(pathname, "/about"),
+                "text-body",
+              )}
+              aria-current={
+                pathIsActive(pathname, "/about") ? "page" : undefined
+              }
             >
               À propos
             </Link>
@@ -55,21 +90,38 @@ export default function Header() {
             width={113.229}
             height={40.0}
           />
-          <div className="flex items-center gap-7 text-kasa-red text-body font-normal">
-            <Link href="/" className="inline-flex items-center gap-0">
+          <div className="flex items-center gap-7 text-body text-kasa-red">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-0 font-normal hover:font-bold"
+            >
               <PlusIcon className="w-3 h-3" />
               Ajouter un logement
             </Link>
             <div className="flex items-center gap-2">
-              <FavoriteIcon
-                className="w-4 h-4"
-                pathClassName="fill-kasa-white stroke-kasa-red"
-              />
+              <Link
+                href="/favoris"
+                aria-label="Favoris"
+                aria-current={favorisActive ? "page" : undefined}
+                className="group"
+              >
+                <FavoriteIcon
+                  className="w-4 h-4"
+                  pathClassName={iconPathClass(favorisActive)}
+                />
+              </Link>
               <span className="border-kasa-red border-l h-1.25"></span>
-              <MessageIcon
-                className="w-4 h-4"
-                pathClassName="fill-kasa-white stroke-kasa-red"
-              />
+              <Link
+                href="/messages"
+                aria-label="Messagerie"
+                aria-current={messagesActive ? "page" : undefined}
+                className="group"
+              >
+                <MessageIcon
+                  className="w-4 h-4"
+                  pathClassName={iconPathClass(messagesActive)}
+                />
+              </Link>
             </div>
           </div>
         </div>
@@ -118,7 +170,13 @@ export default function Header() {
                   ) : null}
                   <Link
                     href={item.href}
-                    className="text-h2 font-normal text-kasa-black"
+                    className={menuLinkClass(
+                      pathIsActive(pathname, item.href),
+                      "text-h2",
+                    )}
+                    aria-current={
+                      pathIsActive(pathname, item.href) ? "page" : undefined
+                    }
                     onClick={() => setOpen(false)}
                   >
                     {item.label}
