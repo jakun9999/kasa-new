@@ -45,7 +45,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
         <div className="flex flex-col gap-6">
           {/* Image principale */}
           <div className="flex gap-2.5 w-154 h-89.5">
-            <div className="relative h-full w-[303px] shrink-0">
+            <div className="relative h-full w-75.75 shrink-0">
               <Image
                 src={property.cover || ""}
                 alt={property.title || ""}
