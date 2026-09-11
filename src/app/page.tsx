@@ -33,14 +33,6 @@ async function PropertyList() {
 export default function Home() {
   return (
     <div className="flex flex-col gap-8 px-4 py-8 md:p-8">
-      <Image
-        src="/logos/kasa_logo_name.svg"
-        alt="Kasa"
-        width={163}
-        height={58}
-        priority
-      />
-      <h1 className="text-h1 font-bold">Hello World</h1>
       <Suspense fallback={<PropertyCardGridSkeleton />}>
         <PropertyList />
       </Suspense>

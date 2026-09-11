@@ -45,25 +45,28 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
         <div className="flex flex-col gap-6">
           {/* Image principale */}
           <div className="flex gap-2.5 w-154 h-89.5">
-            <Image
-              src={property.cover || ""}
-              alt={property.title || ""}
-              width={303}
-              height={357}
-              className="rounded-kasa-cta object-cover"
-              loading="eager"
-            />
+            <div className="relative h-full w-[303px] shrink-0">
+              <Image
+                src={property.cover || ""}
+                alt={property.title || ""}
+                fill
+                sizes="303px"
+                className="rounded-kasa-cta object-cover"
+                loading="eager"
+              />
+            </div>
             {/* Images secondaires */}
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid h-full min-w-0 flex-1 grid-cols-2 gap-2.5">
               {pictures.map((picture) => (
-                <Image
-                  src={picture || ""}
-                  alt={property.title || ""}
-                  width={146.5}
-                  height={174}
-                  className="rounded-kasa-cta object-cover shrink-0 w-full h-full"
-                  key={picture || ""}
-                />
+                <div key={picture} className="relative min-h-0 min-w-0">
+                  <Image
+                    src={picture || ""}
+                    alt={property.title || ""}
+                    fill
+                    sizes="147px"
+                    className="rounded-kasa-cta object-cover"
+                  />
+                </div>
               ))}
             </div>
           </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/ui/header";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,7 +19,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className={`${inter.variable} h-full`}>
       <body className="min-h-full flex flex-col font-sans antialiased">
-        {children}
+        <div className="flex w-full max-w-360 flex-col items-center mx-auto px-4 pt-10 lg:px-0">
+          <Header />
+          {children}
+        </div>
       </body>
     </html>
   );
