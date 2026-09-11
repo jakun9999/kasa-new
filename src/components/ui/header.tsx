@@ -89,6 +89,9 @@ export default function Header() {
             alt="Logo Kasa"
             width={113.229}
             height={40.0}
+            className="h-10 w-[113.229px]"
+            priority
+            loading="eager"
           />
           <div className="flex items-center gap-7 text-body text-kasa-red">
             <Link
