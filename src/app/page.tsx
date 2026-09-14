@@ -34,10 +34,10 @@ export default function Home() {
   return (
     <main className="flex flex-col gap-10 max-w-278.75 px-2 lg:px-0 items-center mx-auto">
       <div className="flex flex-col gap-2 items-center justify-center">
-        <h1 className="text-h1 font-bold text-kasa-red text-center h-11.5">
+        <h1 className="text-center text-h1 font-bold text-kasa-red lg:h-11.5">
           Chez vous, partout et ailleurs
         </h1>
-        <p>
+        <p className="text-center text-body font-normal text-kasa-black">
           Avec Kasa, vivez des séjours uniques dans des hébergements chaleureux,
           sélectionnés avec soin par nos hôtes.
         </p>
