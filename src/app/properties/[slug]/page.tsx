@@ -7,6 +7,10 @@ import { StarIcon } from "@/components/icons/star-icon";
 import { LocalisationIcon } from "@/components/icons/localisation-icon";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
+import { buildPropertyImages } from "@/components/ui/carousel/carousel-utils";
+import { CarouselSkeleton } from "@/components/ui/carousel/carousel-skeleton";
+import { DelayedCarousel } from "@/components/ui/carousel/delayed-carousel";
 
 interface PropertyPageProps {
   params: Promise<{ slug: string }>;
@@ -23,10 +27,13 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
     return notFound();
   }
   const property = propertySchema.parse(await response.json());
-  const pictures = property.pictures?.slice(0, 4) || [];
+  const carouselImages = buildPropertyImages(
+    property.cover,
+    property.pictures,
+  );
 
   return (
-    <article className="flex flex-col pt-4 gap-10 max-w-242 mx-auto">
+    <article className="mx-auto flex w-full max-w-242 flex-col gap-10 pt-4">
       {/* Retour aux annonces */}
       <Link href="/">
         <Button
@@ -41,35 +48,14 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
         </Button>
       </Link>
       {/* Informations à propos du logement */}
-      <div className="flex gap-2.5">
-        <div className="flex flex-col gap-6">
-          {/* Image principale */}
-          <div className="flex gap-2.5 w-154 h-89.5">
-            <div className="relative h-full w-75.75 shrink-0">
-              <Image
-                src={property.cover || ""}
-                alt={property.title || ""}
-                fill
-                sizes="303px"
-                className="rounded-kasa-cta object-cover"
-                loading="eager"
-              />
-            </div>
-            {/* Images secondaires */}
-            <div className="grid h-full min-w-0 flex-1 grid-cols-2 gap-2.5">
-              {pictures.map((picture) => (
-                <div key={picture} className="relative min-h-0 min-w-0">
-                  <Image
-                    src={picture || ""}
-                    alt={property.title || ""}
-                    fill
-                    sizes="147px"
-                    className="rounded-kasa-cta object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+      <div className="flex flex-col gap-6 lg:flex-row lg:gap-2.5">
+        <div className="flex min-w-0 flex-1 flex-col gap-6">
+          <Suspense fallback={<CarouselSkeleton />}>
+            <DelayedCarousel
+              images={carouselImages}
+              alt={property.title || ""}
+            />
+          </Suspense>
           {/* Informations du logement */}
           <div className="flex flex-col gap-10 rounded-kasa-cta bg-kasa-white p-6 border border-kasa-gray-light">
             <div className="flex flex-col gap-8">
@@ -121,7 +107,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
           </div>
         </div>
         {/* Informations de l'hôte */}
-        <div className="flex flex-col gap-2.5 p-6 bg-kasa-white rounded-kasa-cta border border-kasa-gray-light w-86.25 h-70.25">
+        <div className="flex w-full shrink-0 flex-col gap-2.5 rounded-kasa-cta border border-kasa-gray-light bg-kasa-white p-6 lg:h-70.25 lg:w-86.25">
           <p className="text-[16px] font-medium text-kasa-black">Votre hôte</p>
           <div className="flex py-4 gap-4.5 items-center justify-start">
             {/* Image de l'hôte */}
