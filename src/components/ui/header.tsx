@@ -66,7 +66,10 @@ export default function Header() {
           <div className="flex items-center gap-7">
             <Link
               href="/"
-              className={menuLinkClass(pathIsActive(pathname, "/"), "text-body")}
+              className={menuLinkClass(
+                pathIsActive(pathname, "/"),
+                "text-body",
+              )}
               aria-current={pathIsActive(pathname, "/") ? "page" : undefined}
             >
               Accueil
@@ -84,15 +87,18 @@ export default function Header() {
               À propos
             </Link>
           </div>
-          <Image
-            src="/logos/kasa_logo_name.svg"
-            alt="Logo Kasa"
-            width={113.229}
-            height={40.0}
-            className="h-10 w-[113.229px]"
-            priority
-            loading="eager"
-          />
+          <Link href="/login">
+            <Image
+              src="/logos/kasa_logo_name.svg"
+              alt="Logo Kasa"
+              width={113.229}
+              height={40.0}
+              className="h-10 w-[113.229px]"
+              priority
+              loading="eager"
+            />
+          </Link>
+
           <div className="flex items-center gap-7 text-body text-kasa-red">
             <Link
               href="/"
