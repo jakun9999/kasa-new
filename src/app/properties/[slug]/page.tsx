@@ -4,13 +4,13 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { BackIcon } from "@/components/icons/back-icon";
 import { StarIcon } from "@/components/icons/star-icon";
-import { LocalisationIcon } from "@/components/icons/localisation-icon";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { buildPropertyImages } from "@/components/ui/carousel/carousel-utils";
 import { CarouselSkeleton } from "@/components/ui/carousel/carousel-skeleton";
 import { DelayedCarousel } from "@/components/ui/carousel/delayed-carousel";
+import { PropertyInfo } from "@/components/ui/collapse/property-info";
 
 interface PropertyPageProps {
   params: Promise<{ slug: string }>;
@@ -56,55 +56,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
               alt={property.title || ""}
             />
           </Suspense>
-          {/* Informations du logement */}
-          <div className="flex flex-col gap-10 rounded-kasa-cta bg-kasa-white p-6 border border-kasa-gray-light">
-            <div className="flex flex-col gap-8">
-              <div className="flex flex-col gap-4">
-                <h1 className="text-[24px] font-medium text-kasa-black">
-                  {property.title}
-                </h1>
-                <p className="flex items-center gap-2 text-[14px] font-normal text-kasa-gray-dark">
-                  <LocalisationIcon />
-                  {property.location || ""}
-                </p>
-              </div>
-              <p className="text-[18px] font-normal text-kasa-black">
-                {property.description || ""}
-              </p>
-            </div>
-            {/* Équipements */}
-            <div className="flex flex-col gap-4">
-              <p className="text-[14px] font-medium text-kasa-black">
-                Équipements
-              </p>
-              <div className="grid grid-cols-3 gap-2 w-79">
-                {property.equipments?.map((equipment) => (
-                  <p
-                    key={equipment}
-                    className="flex items-center justify-center w-25 h-8.25 text-[12px] font-normal text-kasa-gray-dark bg-kasa-gray-light rounded-kasa-short text-center leading-3.5"
-                  >
-                    {equipment}
-                  </p>
-                ))}
-              </div>
-            </div>
-            {/* Catégories */}
-            <div className="flex flex-col gap-4">
-              <p className="text-[14px] font-medium text-kasa-black">
-                Catégories
-              </p>
-              <div className="grid grid-cols-3 gap-4.5 w-79">
-                {property.tags?.map((tag) => (
-                  <p
-                    key={tag}
-                    className="flex items-center justify-center w-22 h-8.25 text-[12px] font-normal text-kasa-gray-dark bg-kasa-gray-light rounded-kasa-short text-center leading-3.5"
-                  >
-                    {tag}
-                  </p>
-                ))}
-              </div>
-            </div>
-          </div>
+          <PropertyInfo property={property} />
         </div>
         {/* Informations de l'hôte */}
         <div className="flex w-full shrink-0 flex-col gap-2.5 rounded-kasa-cta border border-kasa-gray-light bg-kasa-white p-6 lg:h-70.25 lg:w-86.25">
