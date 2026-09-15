@@ -15,7 +15,10 @@ function encodeBase64Url(bytes: Uint8Array): string {
   for (const byte of bytes) {
     binary += String.fromCharCode(byte);
   }
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 function timingSafeEqual(left: string, right: string): boolean {
@@ -93,19 +96,17 @@ async function verifyHs256Signature(
     new TextEncoder().encode(`${parts[0]}.${parts[1]}`),
   );
 
-  return timingSafeEqual(
-    encodeBase64Url(new Uint8Array(signature)),
-    parts[2],
-  );
+  return timingSafeEqual(encodeBase64Url(new Uint8Array(signature)), parts[2]);
 }
 
 function hasValidTimeClaims(payload: Record<string, unknown>): boolean {
   const now = Math.floor(Date.now() / 1000);
 
-  if (
-    typeof payload.exp === "number" &&
-    now >= payload.exp + CLOCK_SKEW_SEC
-  ) {
+  if (typeof payload.exp !== "number") {
+    return false;
+  }
+
+  if (now >= payload.exp + CLOCK_SKEW_SEC) {
     return false;
   }
 
@@ -119,7 +120,7 @@ function hasValidTimeClaims(payload: Record<string, unknown>): boolean {
 /**
  * Cookie `token` utilisable comme session **côté frontend** :
  * forme JWT + `exp` / `nbf`, et HMAC-SHA256 si `JWT_SECRET` est défini.
- * Sans secret (cas OC), un jeton contrefait avec un `exp` futur passe encore.
+ * Sans secret => fail close.
  */
 export async function isSessionJwtUsable(token: string): Promise<boolean> {
   const payload = decodeJwtPayload(token);
@@ -129,7 +130,7 @@ export async function isSessionJwtUsable(token: string): Promise<boolean> {
 
   const secret = process.env.JWT_SECRET;
   if (!secret) {
-    return true;
+    return false;
   }
 
   return verifyHs256Signature(token, secret);
