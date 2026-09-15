@@ -47,7 +47,9 @@ export default function Home() {
         alt="Hero"
         width={1115}
         height={458}
-        className="w-278.75 h-114.5 rounded-[20px]"
+        className="h-auto w-full rounded-[20px] object-cover aspect-[1115/458]"
+        priority
+        loading="eager"
       />
       <div className="flex flex-col gap-8 w-full">
         <Suspense fallback={<PropertyCardGridSkeleton />}>

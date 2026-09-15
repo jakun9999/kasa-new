@@ -93,7 +93,7 @@ export default function Header() {
               alt="Logo Kasa"
               width={113.229}
               height={40.0}
-              className="h-10 w-[113.229px]"
+              className="h-10 w-auto"
               priority
               loading="eager"
             />
