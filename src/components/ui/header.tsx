@@ -139,7 +139,7 @@ export default function Header() {
       {/* Mobile : barre en flux + panneau en overlay (ne pousse pas la page). */}
       <header className="relative z-50 flex w-full flex-col bg-white shadow-xs lg:hidden">
         <div className="flex h-[85.36px] items-center justify-between px-4">
-          <Link href="/" onClick={() => setOpen(false)}>
+          <Link href="/login" onClick={() => setOpen(false)}>
             <Image
               src="/logos/kasa_logo_picto.svg"
               alt="Logo Kasa"
