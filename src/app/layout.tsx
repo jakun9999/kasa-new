@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
+import { Providers } from "@/context/providers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,15 +21,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className={`${inter.variable} h-full`}>
       <body className="min-h-full flex flex-col font-sans antialiased">
-        <div className="mx-auto flex min-h-full w-full max-w-360 flex-1 flex-col items-center gap-10 pt-0 lg:px-0 lg:pt-10">
-          <Header />
-          <div className="flex w-full flex-1 flex-col px-4 lg:px-0">
-            {children}
+        <Providers>
+          <div className="mx-auto flex min-h-full w-full max-w-360 flex-1 flex-col items-center gap-10 pt-0 lg:px-0 lg:pt-10">
+            <Header />
+            <div className="flex w-full flex-1 flex-col px-4 lg:px-0">
+              {children}
+            </div>
+            <div className="mt-auto w-full">
+              <Footer />
+            </div>
           </div>
-          <div className="mt-auto w-full">
-            <Footer />
-          </div>
-        </div>
+        </Providers>
       </body>
     </html>
   );

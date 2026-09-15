@@ -5,15 +5,10 @@ import { isSessionJwtUsable } from "@/lib/jwt";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 /**
- * Durée des cookies de session (`token`, `user_data`) : **24 heures**.
+ * Durée du cookie de session `token` : **24 heures**.
  * Timeout absolu classique d’une session web (pas un « remember me » 7 jours).
  */
 export const SESSION_MAX_AGE_SECONDS = 24 * 60 * 60;
-
-/** Valeur cookie `user_data` : JSON encodé (noms / e-mails / picture / role hors ASCII). */
-export function encodeUserDataCookie(user: unknown): string {
-  return encodeURIComponent(JSON.stringify(user));
-}
 
 /**
  * JWT de session (`cookie` `token`). `undefined` si absent, mal formé ou expiré.

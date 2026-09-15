@@ -118,6 +118,26 @@ function hasValidTimeClaims(payload: Record<string, unknown>): boolean {
 }
 
 /**
+ * `id` utilisateur du payload JWT backend (`{ id, role, name, email }`).
+ * À n’appeler que sur un jeton déjà validé par {@link isSessionJwtUsable}.
+ */
+export function getJwtUserId(token: string): number | undefined {
+  const payload = decodeJwtPayload(token);
+  if (!payload) {
+    return undefined;
+  }
+
+  const { id } = payload;
+  if (typeof id === "number" && Number.isInteger(id)) {
+    return id;
+  }
+  if (typeof id === "string" && /^\d+$/.test(id)) {
+    return Number(id);
+  }
+  return undefined;
+}
+
+/**
  * Cookie `token` utilisable comme session **côté frontend** :
  * forme JWT + `exp` / `nbf`, et HMAC-SHA256 si `JWT_SECRET` est défini.
  * Sans secret => fail close.

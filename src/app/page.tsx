@@ -47,7 +47,7 @@ export default function Home() {
         alt="Hero"
         width={1115}
         height={458}
-        className="h-auto w-full rounded-[20px] object-cover aspect-[1115/458]"
+        className="h-auto w-full rounded-[20px] object-cover aspect-1115/458"
         priority
         loading="eager"
       />
