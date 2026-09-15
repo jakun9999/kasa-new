@@ -8,12 +8,39 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
 import { parseAuthUser } from "@/schemas/auth-user-schema";
 
-function readApiMessage(body: unknown): string | null {
+/** Fallback FR si le BFF ne renvoie pas de message (ne jamais afficher du texte brut EN). */
+function loginUiMessage(status: number): string {
+  if (status === 401) {
+    return "E-mail ou mot de passe incorrect.";
+  }
+  if (status === 400) {
+    return "Données d'identification incorrectes.";
+  }
+  if (status === 429) {
+    return "Trop de tentatives. Réessayez plus tard.";
+  }
+  return "Impossible de se connecter. Réessayez.";
+}
+
+function readFrenchApiMessage(body: unknown): string | null {
   if (typeof body !== "object" || body === null) {
     return null;
   }
   const message = (body as { message?: unknown }).message;
-  return typeof message === "string" && message.length > 0 ? message : null;
+  if (typeof message !== "string" || message.length === 0) {
+    return null;
+  }
+  // Garde-fou : un message serveur EN ne doit pas remonter à l’UI.
+  if (/[A-Za-z]{3,}/.test(message) && !/[àâäéèêëïîôùûüçœ]/i.test(message)) {
+    const looksEnglish =
+      /\b(invalid|credentials|required|error|password|email|forbidden|unauthorized|internal|server)\b/i.test(
+        message,
+      );
+    if (looksEnglish) {
+      return null;
+    }
+  }
+  return message;
 }
 
 export const LoginForm = () => {
@@ -41,12 +68,7 @@ export const LoginForm = () => {
       const body: unknown = await response.json().catch(() => null);
 
       if (!response.ok) {
-        setError(
-          readApiMessage(body) ??
-            (response.status === 401
-              ? "E-mail ou mot de passe incorrect."
-              : "Impossible de se connecter. Réessayez."),
-        );
+        setError(readFrenchApiMessage(body) ?? loginUiMessage(response.status));
         return;
       }
 
@@ -56,7 +78,7 @@ export const LoginForm = () => {
           : undefined;
       const parsed = parseAuthUser(user);
       if (!parsed) {
-        setError("Connexion réussie mais profil invalide. Réessayez.");
+        setError("Connexion impossible. Réessayez.");
         return;
       }
 
@@ -73,17 +95,18 @@ export const LoginForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto flex w-full max-w-185.5 flex-col items-center gap-9.5 rounded-kasa-cta border border-kasa-gray-light bg-kasa-white lg:px-20 lg:py-20 px-4 py-8"
+      className="mx-auto flex w-full max-w-185.5 flex-col items-center gap-9.5 rounded-kasa-cta border border-kasa-gray-light bg-kasa-white px-4 py-8 lg:px-20 lg:py-20"
     >
-      <div className="flex flex-col gap-2 items-center">
+      <div className="flex flex-col items-center gap-2">
         <h1 className="text-center text-h1 font-bold text-kasa-red lg:flex lg:h-11.5 lg:items-center lg:justify-center">
           Heureux de vous revoir
         </h1>
-        <p className="max-w-97.5 text-body font-normal text-black text-center">
+        <p className="max-w-97.5 text-center text-body font-normal text-black">
           Connectez-vous pour retrouver vos réservations, vos annonces et tout
           ce qui rend vos séjours uniques.
         </p>
       </div>
+
       <div className="flex w-full max-w-90 flex-col gap-5.5">
         <StandardInput
           type="email"
@@ -105,38 +128,36 @@ export const LoginForm = () => {
           autoComplete="current-password"
           required
         />
-      </div>
-      <div className="flex flex-col gap-5.5 items-center">
-        {error ? (
-          <p
-            role="alert"
-            className="text-center text-body font-normal text-kasa-red"
-          >
-            {error}
-          </p>
-        ) : null}
+        {/* Emplacement fixe : évite le saut du bouton quand l’erreur apparaît. */}
+        <p
+          role="alert"
+          aria-live="polite"
+          className="flex min-h-5 w-full items-center justify-center text-center text-caption font-normal text-kasa-red"
+        >
+          {error ?? "\u00A0"}
+        </p>
         <Button
           type="submit"
           color="red"
           width="w-full"
           height="h-10"
-          className="text-body font-medium text-kasa-white max-w-57.5 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mx-auto max-w-57.5 text-body font-medium text-kasa-white disabled:cursor-not-allowed disabled:opacity-60"
           size="medium"
           disabled={isSubmitting}
           aria-busy={isSubmitting}
         >
           {isSubmitting ? "Connexion…" : "Se connecter"}
         </Button>
-        <div className="flex flex-col gap-3 items-center">
+        <div className="flex flex-col items-center gap-3">
           <Link
             href="/forgot-password"
-            className="text-body font-normal text-kasa-red text-center"
+            className="text-center text-body font-normal text-kasa-red"
           >
             Mot de passe oublié
           </Link>
-          <p className="text-body font-normal text-kasa-red text-center">
+          <p className="text-center text-body font-normal text-kasa-red">
             Pas encore de compte ?{" "}
-            <Link href="/register" className="text-kasa-red font-medium">
+            <Link href="/register" className="font-medium text-kasa-red">
               Inscrivez-vous
             </Link>
           </p>

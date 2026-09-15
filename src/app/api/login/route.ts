@@ -2,23 +2,8 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { parseAuthUser } from "@/schemas/auth-user-schema";
 import { LoginSchema } from "@/schemas/login-schema";
-import { z } from "zod";
 import { SESSION_MAX_AGE_SECONDS } from "@/lib/api-server";
 import { RATE_LIMITS, enforceRateLimit, getClientIp } from "@/lib/rate-limit";
-
-function readBackendMessage(result: unknown): string | null {
-  if (typeof result !== "object" || result === null) {
-    return null;
-  }
-  const record = result as Record<string, unknown>;
-  if (typeof record.error === "string") {
-    return record.error;
-  }
-  if (typeof record.message === "string") {
-    return record.message;
-  }
-  return null;
-}
 
 /** Backend officiel : `{ token, user }`. Variante wrappée : `{ data: { token, user } }`. */
 function unwrapLoginPayload(result: unknown): {
@@ -42,6 +27,23 @@ function unwrapLoginPayload(result: unknown): {
   return { token: undefined, user: undefined };
 }
 
+/** Messages FR uniquement — on ne renvoie jamais le texte brut du backend (souvent EN). */
+function loginErrorMessage(status: number): string {
+  if (status === 401) {
+    return "E-mail ou mot de passe incorrect.";
+  }
+  if (status === 400) {
+    return "Données d'identification incorrectes.";
+  }
+  if (status === 429) {
+    return "Trop de tentatives. Réessayez plus tard.";
+  }
+  if (status >= 500) {
+    return "Service indisponible. Réessayez plus tard.";
+  }
+  return "Impossible de se connecter. Réessayez.";
+}
+
 /**
  * Authentifie via le backend et pose uniquement `token` (JWT HttpOnly).
  * Le profil est renvoyé dans le JSON ; au refresh, `GET /api/me` le relit.
@@ -61,10 +63,7 @@ export async function POST(request: Request) {
 
     if (!authDataValidation.success) {
       return NextResponse.json(
-        {
-          message: "Données d'identification incorrectes",
-          errors: z.treeifyError(authDataValidation.error),
-        },
+        { message: loginErrorMessage(400) },
         { status: 400 },
       );
     }
@@ -74,7 +73,7 @@ export async function POST(request: Request) {
       process.env.API_URL_INTERNAL ?? process.env.NEXT_PUBLIC_API_URL;
     if (!API_URL) {
       return NextResponse.json(
-        { message: "Internal server error" },
+        { message: loginErrorMessage(500) },
         { status: 500 },
       );
     }
@@ -90,20 +89,19 @@ export async function POST(request: Request) {
       result = await backendResponse.json();
     } catch {
       return NextResponse.json(
-        { message: "Réponse backend invalide" },
+        { message: loginErrorMessage(502) },
         { status: 502 },
       );
     }
 
     if (!backendResponse.ok) {
+      // Log serveur uniquement — jamais renvoyé au client.
+      console.error("Login: échec backend", {
+        status: backendResponse.status,
+        body: result,
+      });
       return NextResponse.json(
-        {
-          message:
-            readBackendMessage(result) ||
-            (backendResponse.status === 401
-              ? "E-mail ou mot de passe incorrect."
-              : "Erreur d'authentification"),
-        },
+        { message: loginErrorMessage(backendResponse.status) },
         { status: backendResponse.status },
       );
     }
@@ -114,7 +112,7 @@ export async function POST(request: Request) {
     if (!token || !safeAuthUser) {
       console.error("Login: profil ou token backend invalide", { user });
       return NextResponse.json(
-        { message: "AuthUser profil structure sent by backend are invalid" },
+        { message: loginErrorMessage(502) },
         { status: 502 },
       );
     }
@@ -144,7 +142,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Login: erreur inattendue", error);
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: loginErrorMessage(500) },
       { status: 500 },
     );
   }
