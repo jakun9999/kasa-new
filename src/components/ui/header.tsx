@@ -1,9 +1,9 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { PlusIcon } from "@/components/icons/plus-icon";
 import { FavoriteIcon } from "@/components/icons/favorite-icon";
 import { MessageIcon } from "@/components/icons/message-icon";
@@ -11,11 +11,13 @@ import { MenuIcon } from "@/components/icons/menu-icon";
 import { CloseIcon } from "@/components/icons/close-icon";
 import { Button } from "@/components/ui/button";
 
+const FAVORITES_HREF = "/?favoris=1";
+
 const mobileLinks = [
-  { href: "/", label: "Accueil" },
-  { href: "/about", label: "À propos" },
-  { href: "/messages", label: "Messagerie" },
-  { href: "/favoris", label: "Favoris" },
+  { href: "/", label: "Accueil", kind: "home" },
+  { href: "/about", label: "À propos", kind: "path" },
+  { href: "/messages", label: "Messagerie", kind: "path" },
+  { href: FAVORITES_HREF, label: "Favoris", kind: "favorites" },
 ] as const;
 
 function pathIsActive(pathname: string, href: string) {
@@ -39,10 +41,13 @@ function iconPathClass(active: boolean) {
     : "fill-kasa-white stroke-kasa-red group-hover:fill-kasa-red";
 }
 
-export default function Header() {
+function HeaderNav() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
-  const favorisActive = pathIsActive(pathname, "/favoris");
+  const showFavorites = searchParams.get("favoris") === "1";
+  const homeActive = pathname === "/" && !showFavorites;
+  const favorisActive = pathname === "/" && showFavorites;
   const messagesActive = pathIsActive(pathname, "/messages");
 
   useEffect(() => {
@@ -58,19 +63,26 @@ export default function Header() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  function mobileLinkActive(kind: (typeof mobileLinks)[number]["kind"], href: string) {
+    if (kind === "home") {
+      return homeActive;
+    }
+    if (kind === "favorites") {
+      return favorisActive;
+    }
+    return pathIsActive(pathname, href);
+  }
+
   return (
     <>
       {/* Desktop / tablette assez large : dimensions Figma inchangées (782 × 56). */}
-      <header className="hidden lg:flex items-center justify-between w-195.5 h-[56.05px] bg-white shadow-xs px-25 rounded-kasa-cta">
+      <header className="hidden h-[56.05px] w-195.5 items-center justify-between rounded-kasa-cta bg-white px-25 shadow-xs lg:flex">
         <div className="flex items-center gap-[49.86px]">
           <div className="flex items-center gap-7">
             <Link
               href="/"
-              className={menuLinkClass(
-                pathIsActive(pathname, "/"),
-                "text-body",
-              )}
-              aria-current={pathIsActive(pathname, "/") ? "page" : undefined}
+              className={menuLinkClass(homeActive, "text-body")}
+              aria-current={homeActive ? "page" : undefined}
             >
               Accueil
             </Link>
@@ -104,22 +116,22 @@ export default function Header() {
               href="/"
               className="inline-flex items-center gap-0 font-normal hover:font-bold"
             >
-              <PlusIcon className="w-3 h-3" />
+              <PlusIcon className="h-3 w-3" />
               Ajouter un logement
             </Link>
             <div className="flex items-center gap-2">
               <Link
-                href="/favoris"
+                href={FAVORITES_HREF}
                 aria-label="Favoris"
                 aria-current={favorisActive ? "page" : undefined}
                 className="group"
               >
                 <FavoriteIcon
-                  className="w-4 h-4"
+                  className="h-4 w-4"
                   pathClassName={iconPathClass(favorisActive)}
                 />
               </Link>
-              <span className="border-kasa-red border-l h-1.25"></span>
+              <span className="h-1.25 border-l border-kasa-red"></span>
               <Link
                 href="/messages"
                 aria-label="Messagerie"
@@ -127,7 +139,7 @@ export default function Header() {
                 className="group"
               >
                 <MessageIcon
-                  className="w-4 h-4"
+                  className="h-4 w-4"
                   pathClassName={iconPathClass(messagesActive)}
                 />
               </Link>
@@ -166,32 +178,30 @@ export default function Header() {
         {open ? (
           <nav
             id="menu-mobile"
-            className="absolute inset-x-0 top-full z-50 flex flex-col bg-white px-5 pb-6 pt-9 shadow-xs"
+            className="absolute inset-x-0 top-full z-50 flex flex-col bg-white px-5 pt-9 pb-6 shadow-xs"
           >
             <div className="flex flex-col gap-7">
-              {mobileLinks.map((item, index) => (
-                <Fragment key={item.href}>
-                  {index > 0 ? (
-                    <div
-                      className="h-px w-full bg-kasa-gray-light"
-                      aria-hidden
-                    />
-                  ) : null}
-                  <Link
-                    href={item.href}
-                    className={menuLinkClass(
-                      pathIsActive(pathname, item.href),
-                      "text-h2",
-                    )}
-                    aria-current={
-                      pathIsActive(pathname, item.href) ? "page" : undefined
-                    }
-                    onClick={() => setOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                </Fragment>
-              ))}
+              {mobileLinks.map((item, index) => {
+                const active = mobileLinkActive(item.kind, item.href);
+                return (
+                  <Fragment key={item.href}>
+                    {index > 0 ? (
+                      <div
+                        className="h-px w-full bg-kasa-gray-light"
+                        aria-hidden
+                      />
+                    ) : null}
+                    <Link
+                      href={item.href}
+                      className={menuLinkClass(active, "text-h2")}
+                      aria-current={active ? "page" : undefined}
+                      onClick={() => setOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  </Fragment>
+                );
+              })}
             </div>
             <div className="pt-10">
               <Link href="/" onClick={() => setOpen(false)}>
@@ -204,5 +214,18 @@ export default function Header() {
         ) : null}
       </header>
     </>
+  );
+}
+
+/** Header wrappé : `useSearchParams` exige une boundary Suspense. */
+export default function Header() {
+  return (
+    <Suspense
+      fallback={
+        <header className="h-[85.36px] w-full bg-white shadow-xs lg:h-[56.05px] lg:w-195.5 lg:rounded-kasa-cta" />
+      }
+    >
+      <HeaderNav />
+    </Suspense>
   );
 }

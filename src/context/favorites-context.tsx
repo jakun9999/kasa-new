@@ -2,11 +2,21 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
+  useEffect,
+  useMemo,
+  useState,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { useAuth } from "@/context/auth-context";
+import {
+  isFavoriteId,
+  readFavoriteIdsFromStorage,
+  toggleFavoriteId,
+  writeFavoriteIdsToStorage,
+} from "@/lib/favorites";
 import {
   FAVORITES_STORAGE_KEY,
   FavoriteIdsSchema,
@@ -15,16 +25,18 @@ import {
 
 type FavoritesContextType = {
   favoriteIds: FavoriteIds;
-  /** `false` tant que la session n’a pas été lue (évite un écart SSR). */
+  /** `false` tant que session / storage n’a pas été lu (évite un écart SSR). */
   isReady: boolean;
+  isFavorite: (propertyId: string) => boolean;
+  toggleFavorite: (propertyId: string) => void;
 };
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(
   undefined,
 );
 
-/** Référence stable : `getServerSnapshot` / liste vide ne doivent pas renvoyer un nouveau `[]` à chaque appel. */
 const EMPTY_FAVORITE_IDS: FavoriteIds = [];
+const FAVORITES_CHANGE_EVENT = "kasa:favorites-change";
 
 let snapshotRaw: string | null | undefined = undefined;
 let snapshotIds: FavoriteIds = EMPTY_FAVORITE_IDS;
@@ -36,12 +48,7 @@ function getClientFavoriteIds(): FavoriteIds {
       return snapshotIds;
     }
     snapshotRaw = raw;
-    if (!raw) {
-      snapshotIds = EMPTY_FAVORITE_IDS;
-      return snapshotIds;
-    }
-    const parsed = FavoriteIdsSchema.safeParse(JSON.parse(raw));
-    snapshotIds = parsed.success ? parsed.data : EMPTY_FAVORITE_IDS;
+    snapshotIds = readFavoriteIdsFromStorage();
     return snapshotIds;
   } catch {
     snapshotRaw = null;
@@ -55,13 +62,53 @@ function getServerFavoriteIds(): FavoriteIds {
 }
 
 function subscribeToFavorites(onStoreChange: () => void) {
-  window.addEventListener("storage", onStoreChange);
-  return () => window.removeEventListener("storage", onStoreChange);
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === null || event.key === FAVORITES_STORAGE_KEY) {
+      onStoreChange();
+    }
+  };
+  window.addEventListener("storage", onStorage);
+  window.addEventListener(FAVORITES_CHANGE_EVENT, onStoreChange);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener(FAVORITES_CHANGE_EVENT, onStoreChange);
+  };
+}
+
+function persistLocalFavorites(ids: FavoriteIds) {
+  writeFavoriteIdsToStorage(ids);
+  snapshotRaw = ids.length === 0 ? null : JSON.stringify(ids);
+  snapshotIds = ids.length === 0 ? EMPTY_FAVORITE_IDS : ids;
+  window.dispatchEvent(new Event(FAVORITES_CHANGE_EVENT));
+}
+
+function extractFavoriteIds(payload: unknown): FavoriteIds {
+  if (!Array.isArray(payload)) {
+    return EMPTY_FAVORITE_IDS;
+  }
+  const ids = payload
+    .map((item) => {
+      if (typeof item === "string") {
+        return item;
+      }
+      if (
+        typeof item === "object" &&
+        item !== null &&
+        "id" in item &&
+        typeof (item as { id: unknown }).id === "string"
+      ) {
+        return (item as { id: string }).id;
+      }
+      return null;
+    })
+    .filter((id): id is string => id !== null);
+  const parsed = FavoriteIdsSchema.safeParse(ids);
+  return parsed.success ? parsed.data : EMPTY_FAVORITE_IDS;
 }
 
 /**
- * Favoris : visiteur = `localStorage` (`kasa:favorites`) ; connecté = IDs API
- * (vide pour l’instant, le fetch viendra avec le clic cœur).
+ * Favoris : visiteur = `localStorage` ; connecté = API (`/api/favorites`).
+ * Le filtre « Vos favoris » lit uniquement ces ids — jamais ceux de l’URL.
  */
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const { authUser, isReady: isAuthReady } = useAuth();
@@ -70,14 +117,117 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     getClientFavoriteIds,
     getServerFavoriteIds,
   );
+  const [authFavoriteIds, setAuthFavoriteIds] =
+    useState<FavoriteIds>(EMPTY_FAVORITE_IDS);
+  const [authFavoritesReady, setAuthFavoritesReady] = useState(false);
 
-  const favoriteIds =
-    !isAuthReady || authUser ? EMPTY_FAVORITE_IDS : localFavoriteIds;
+  useEffect(() => {
+    if (!isAuthReady) {
+      return;
+    }
+    if (!authUser) {
+      setAuthFavoriteIds(EMPTY_FAVORITE_IDS);
+      setAuthFavoritesReady(true);
+      return;
+    }
+
+    let cancelled = false;
+    setAuthFavoritesReady(false);
+
+    async function loadAuthFavorites() {
+      try {
+        const response = await fetch("/api/favorites", {
+          credentials: "include",
+        });
+        if (!response.ok) {
+          if (!cancelled) {
+            setAuthFavoriteIds(EMPTY_FAVORITE_IDS);
+            setAuthFavoritesReady(true);
+          }
+          return;
+        }
+        const body: unknown = await response.json();
+        const list =
+          typeof body === "object" &&
+          body !== null &&
+          "favorites" in body &&
+          Array.isArray((body as { favorites: unknown }).favorites)
+            ? (body as { favorites: unknown[] }).favorites
+            : body;
+        if (!cancelled) {
+          setAuthFavoriteIds(extractFavoriteIds(list));
+          setAuthFavoritesReady(true);
+        }
+      } catch {
+        if (!cancelled) {
+          setAuthFavoriteIds(EMPTY_FAVORITE_IDS);
+          setAuthFavoritesReady(true);
+        }
+      }
+    }
+
+    void loadAuthFavorites();
+    return () => {
+      cancelled = true;
+    };
+  }, [authUser, isAuthReady]);
+
+  const favoriteIds = !isAuthReady
+    ? EMPTY_FAVORITE_IDS
+    : authUser
+      ? authFavoriteIds
+      : localFavoriteIds;
+
+  const isReady = isAuthReady && (!authUser || authFavoritesReady);
+
+  const isFavorite = useCallback(
+    (propertyId: string) => isFavoriteId(favoriteIds, propertyId),
+    [favoriteIds],
+  );
+
+  const toggleFavorite = useCallback(
+    (propertyId: string) => {
+      if (!propertyId || !isReady) {
+        return;
+      }
+
+      if (!authUser) {
+        persistLocalFavorites(toggleFavoriteId(localFavoriteIds, propertyId));
+        return;
+      }
+
+      const previous = authFavoriteIds;
+      const removing = isFavoriteId(previous, propertyId);
+      const next = toggleFavoriteId(previous, propertyId);
+      setAuthFavoriteIds(next);
+
+      void (async () => {
+        try {
+          const response = await fetch(
+            `/api/favorites/${encodeURIComponent(propertyId)}`,
+            {
+              method: removing ? "DELETE" : "POST",
+              credentials: "include",
+            },
+          );
+          if (!response.ok) {
+            setAuthFavoriteIds(previous);
+          }
+        } catch {
+          setAuthFavoriteIds(previous);
+        }
+      })();
+    },
+    [authFavoriteIds, authUser, isReady, localFavoriteIds],
+  );
+
+  const value = useMemo(
+    () => ({ favoriteIds, isReady, isFavorite, toggleFavorite }),
+    [favoriteIds, isFavorite, isReady, toggleFavorite],
+  );
 
   return (
-    <FavoritesContext.Provider
-      value={{ favoriteIds, isReady: isAuthReady }}
-    >
+    <FavoritesContext.Provider value={value}>
       {children}
     </FavoritesContext.Provider>
   );
