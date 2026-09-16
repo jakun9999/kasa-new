@@ -10,13 +10,14 @@ import { MessageIcon } from "@/components/icons/message-icon";
 import { MenuIcon } from "@/components/icons/menu-icon";
 import { CloseIcon } from "@/components/icons/close-icon";
 import { Button } from "@/components/ui/button";
+import { MessagesLink } from "@/components/ui/auth/messages-link";
 
 const FAVORITES_HREF = "/?favoris=1";
 
 const mobileLinks = [
   { href: "/", label: "Accueil", kind: "home" },
   { href: "/about", label: "À propos", kind: "path" },
-  { href: "/messages", label: "Messagerie", kind: "path" },
+  { href: "/messages", label: "Messagerie", kind: "messages" },
   { href: FAVORITES_HREF, label: "Favoris", kind: "favorites" },
 ] as const;
 
@@ -69,6 +70,9 @@ function HeaderNav() {
     }
     if (kind === "favorites") {
       return favorisActive;
+    }
+    if (kind === "messages") {
+      return messagesActive;
     }
     return pathIsActive(pathname, href);
   }
@@ -132,8 +136,7 @@ function HeaderNav() {
                 />
               </Link>
               <span className="h-1.25 border-l border-kasa-red"></span>
-              <Link
-                href="/messages"
+              <MessagesLink
                 aria-label="Messagerie"
                 aria-current={messagesActive ? "page" : undefined}
                 className="group"
@@ -142,7 +145,7 @@ function HeaderNav() {
                   className="h-4 w-4"
                   pathClassName={iconPathClass(messagesActive)}
                 />
-              </Link>
+              </MessagesLink>
             </div>
           </div>
         </div>
@@ -191,14 +194,24 @@ function HeaderNav() {
                         aria-hidden
                       />
                     ) : null}
-                    <Link
-                      href={item.href}
-                      className={menuLinkClass(active, "text-h2")}
-                      aria-current={active ? "page" : undefined}
-                      onClick={() => setOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
+                    {item.kind === "messages" ? (
+                      <MessagesLink
+                        className={menuLinkClass(active, "text-h2")}
+                        aria-current={active ? "page" : undefined}
+                        onClick={() => setOpen(false)}
+                      >
+                        {item.label}
+                      </MessagesLink>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className={menuLinkClass(active, "text-h2")}
+                        aria-current={active ? "page" : undefined}
+                        onClick={() => setOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    )}
                   </Fragment>
                 );
               })}

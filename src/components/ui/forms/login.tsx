@@ -1,12 +1,14 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { StandardInput } from "@/components/ui/inputs/standard-input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
 import { parseAuthUser } from "@/schemas/auth-user-schema";
+import { safeNextPath } from "@/lib/safe-next-path";
+import { markMessagesArrivedFromLogin } from "@/lib/messages-back-navigation";
 
 /** Fallback FR si le BFF ne renvoie pas de message (ne jamais afficher du texte brut EN). */
 function loginUiMessage(status: number): string {
@@ -44,7 +46,16 @@ function readFrenchApiMessage(body: unknown): string | null {
 }
 
 export const LoginForm = () => {
+  return (
+    <Suspense fallback={null}>
+      <LoginFormInner />
+    </Suspense>
+  );
+};
+
+const LoginFormInner = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setAuthUser } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -83,7 +94,12 @@ export const LoginForm = () => {
       }
 
       setAuthUser(parsed);
-      router.push("/");
+      const next = safeNextPath(searchParams.get("next"), "/");
+      if (next === "/messages" || next.startsWith("/messages/")) {
+        markMessagesArrivedFromLogin();
+      }
+      // `replace` : évite d’empiler `/login` si le flag n’est pas lu.
+      router.replace(next);
       router.refresh();
     } catch {
       setError("Impossible de se connecter. Réessayez.");

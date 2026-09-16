@@ -11,6 +11,7 @@ import { buildPropertyImages } from "@/components/ui/carousel/carousel-utils";
 import { CarouselSkeleton } from "@/components/ui/carousel/carousel-skeleton";
 import { DelayedCarousel } from "@/components/ui/carousel/delayed-carousel";
 import { PropertyInfo } from "@/components/ui/collapse/property-info";
+import { PropertyContactActions } from "@/components/ui/property/property-contact-actions";
 
 interface PropertyPageProps {
   params: Promise<{ slug: string }>;
@@ -88,26 +89,8 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
               {property.rating_avg ?? 0}
             </Button>
           </div>
-          {/* Bouton de contact */}
-          <Button
-            size="long"
-            color="red"
-            width="w-74.25"
-            height="h-9"
-            className="font-medium text-body shrink-0"
-          >
-            Contacter l&apos;hôte
-          </Button>
-          {/* Bouton d'envoi de message */}
-          <Button
-            size="long"
-            color="red"
-            width="w-74.25"
-            height="h-9"
-            className="font-medium text-body shrink-0"
-          >
-            Envoyer un message
-          </Button>
+          {/* Boutons contact → messagerie (auth) ou login */}
+          <PropertyContactActions />
         </div>
       </div>
     </article>
