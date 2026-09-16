@@ -4,9 +4,7 @@ import { fetchServer } from "@/lib/api-server";
 import { parseShowFavoritesOnly } from "@/lib/favorites";
 import { propertiesSchema } from "@/schemas/property";
 import { PropertyGrid } from "@/components/ui/cards/property-grid";
-import {
-  PropertyCardGridSkeleton,
-} from "@/components/ui/cards/property-card-skeleton";
+import { PropertyCardGridSkeleton } from "@/components/ui/cards/property-card-skeleton";
 
 type HomeProps = {
   searchParams: Promise<{ favoris?: string | string[] }>;
@@ -40,16 +38,18 @@ export default async function Home({ searchParams }: HomeProps) {
   const showFavoritesOnly = parseShowFavoritesOnly(params.favoris);
 
   return (
-    <main className="mx-auto flex max-w-278.75 flex-col items-center gap-10 px-2 lg:px-0">
-      <div className="flex flex-col items-center justify-center gap-2">
+    <main
+      className={`mx-auto flex max-w-278.75 flex-col items-center gap-10 lg:px-0 ${
+        showFavoritesOnly ? "px-[1.5px]" : "px-2"
+      }`}
+    >
+      <div className="flex flex-col items-center justify-between gap-2 h-30.5 lg:h-23.5 lg:w-185.5">
         <h1 className="text-center text-h1 font-bold text-kasa-red lg:h-11.5">
-          {showFavoritesOnly
-            ? "Vos favoris"
-            : "Chez vous, partout et ailleurs"}
+          {showFavoritesOnly ? "Vos favoris" : "Chez vous, partout et ailleurs"}
         </h1>
-        <p className="text-center text-body font-normal text-kasa-black">
+        <p className="text-center text-body font-normal text-kasa-black px-2">
           {showFavoritesOnly
-            ? "Retrouvez ici les logements que vous avez ajoutés à vos favoris."
+            ? "Retrouvez ici tous les logements que vous avez aimés. Prêts à réserver ? Un simple clic et votre prochain séjour est en route."
             : "Avec Kasa, vivez des séjours uniques dans des hébergements chaleureux, sélectionnés avec soin par nos hôtes."}
         </p>
       </div>
