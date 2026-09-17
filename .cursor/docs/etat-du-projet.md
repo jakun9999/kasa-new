@@ -35,7 +35,7 @@ Dernière mise à jour : **10 septembre 2026**.
 - [ ] 4. Accueil liste — cards + skeleton + grille 1/2/3 cols (Header encore à faire)
 - [ ] 5. Détail + carrousel testé
 - [ ] 6. Favoris `localStorage` testés
-- [ ] 7. Sitemap + Schema.org + Lighthouse vert
+- [x] 7a. Sitemap (`app/sitemap.ts` + `soutenance/sitemap.md`) — reste Schema.org + Lighthouse vert
 - [ ] 8. Accessibilité
 - [ ] 9. JSDoc / Storybook + README
 - [ ] Déploiement
