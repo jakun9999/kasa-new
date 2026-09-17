@@ -81,9 +81,19 @@ export function MessageListItem({
     process.env.NODE_ENV !== "development",
   );
   const [loadedPicture, setLoadedPicture] = useState<string | null>(null);
-  const [photoPulse, setPhotoPulse] = useState(true);
+  /** Après 5 s sans load : fond statique (WCAG 2.2.2), plus de pulse. */
+  const [pulseExpired, setPulseExpired] = useState(false);
+  const [pulsePictureKey, setPulsePictureKey] = useState(correspondentPicture);
   const imageLoaded =
     !correspondentPicture || loadedPicture === correspondentPicture;
+
+  // Nouvelle URL photo → on réautorise le pulse (ajustement d’état au render, pas en effect).
+  if (correspondentPicture !== pulsePictureKey) {
+    setPulsePictureKey(correspondentPicture);
+    setPulseExpired(false);
+  }
+
+  const photoPulse = !imageLoaded && !pulseExpired;
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "development") {
@@ -95,11 +105,9 @@ export function MessageListItem({
 
   useEffect(() => {
     if (imageLoaded) {
-      setPhotoPulse(false);
       return;
     }
-    setPhotoPulse(true);
-    const timer = window.setTimeout(() => setPhotoPulse(false), 5000);
+    const timer = window.setTimeout(() => setPulseExpired(true), 5000);
     return () => window.clearTimeout(timer);
   }, [imageLoaded, correspondentPicture]);
 

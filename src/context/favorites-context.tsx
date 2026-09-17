@@ -119,6 +119,7 @@ function extractFavoriteIds(payload: unknown): FavoriteIds {
  */
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const { authUser, isReady: isAuthReady } = useAuth();
+  const authUserId = authUser?.id ?? null;
   const localFavoriteIds = useSyncExternalStore(
     subscribeToFavorites,
     getClientFavoriteIds,
@@ -127,19 +128,25 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [authFavoriteIds, setAuthFavoriteIds] =
     useState<FavoriteIds>(EMPTY_FAVORITE_IDS);
   const [authFavoritesReady, setAuthFavoritesReady] = useState(false);
+  const [loadedAuthUserId, setLoadedAuthUserId] = useState<number | null>(
+    null,
+  );
+
+  // Changement de session (login / logout / autre compte) : reset hors effect
+  // pour éviter `setState` synchrone dans `useEffect` (lint react-hooks).
+  if (authUserId !== loadedAuthUserId) {
+    setLoadedAuthUserId(authUserId);
+    setAuthFavoriteIds(EMPTY_FAVORITE_IDS);
+    // Visiteur : pas de fetch API — ready immédiat. Connecté : attend le fetch.
+    setAuthFavoritesReady(authUserId === null);
+  }
 
   useEffect(() => {
-    if (!isAuthReady) {
-      return;
-    }
-    if (!authUser) {
-      setAuthFavoriteIds(EMPTY_FAVORITE_IDS);
-      setAuthFavoritesReady(true);
+    if (!isAuthReady || authUserId === null) {
       return;
     }
 
     let cancelled = false;
-    setAuthFavoritesReady(false);
 
     async function loadAuthFavorites() {
       try {
@@ -177,7 +184,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [authUser, isAuthReady]);
+  }, [authUserId, isAuthReady]);
 
   const favoriteIds = !isAuthReady
     ? EMPTY_FAVORITE_IDS
@@ -186,6 +193,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       : localFavoriteIds;
 
   const isReady = isAuthReady && (!authUser || authFavoritesReady);
+
 
   const isFavorite = useCallback(
     (propertyId: string) => isFavoriteId(favoriteIds, propertyId),

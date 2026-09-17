@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 import { AuthUser, AuthUserSchema } from "@/schemas/auth-user-schema";
 import { FAVORITES_STORAGE_KEY } from "@/schemas/favorites-schema";
 
@@ -26,6 +27,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  * Le profil est hydraté via `GET /api/me` (pas de cookie lisible en JS).
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [authUser, setAuthUserState] = useState<AuthUser | null>(null);
   const [isReady, setIsReady] = useState(false);
 
@@ -82,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Expire le JWT, vide les favoris visiteur (`localStorage`) pour un PC partagé,
    * puis redirige vers `/login`.
    */
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await fetch("/api/logout", { method: "POST", credentials: "include" });
     try {
       localStorage.removeItem(FAVORITES_STORAGE_KEY);
@@ -90,8 +92,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       /* localStorage peut être indisponible (mode privé strict). */
     }
     setAuthUserState(null);
-    window.location.href = "/login";
-  };
+    router.replace("/login");
+  }, [router]);
 
   return (
     <AuthContext.Provider value={{ authUser, setAuthUser, logout, isReady }}>
