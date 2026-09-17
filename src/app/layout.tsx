@@ -27,6 +27,14 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Layout racine (Server Component).
+ *
+ * @remarks
+ * - `Providers` (client) enveloppe Auth + Favoris ; les **pages enfants restent serveur**.
+ * - `px-4` aussi dès `lg` : entre ~1024px et le max contenu, sans gouttière le texte
+ *   collait au bord (piège mid-breakpoint vs Figma desktop large).
+ */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className={`${inter.variable} h-full`}>

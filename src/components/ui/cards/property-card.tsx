@@ -13,6 +13,15 @@ type PropertyCardProps = {
   priority?: boolean;
 };
 
+/**
+ * Card logement (grille accueil / favoris).
+ *
+ * @remarks
+ * - Lien : `/properties/{id}-{slug}` (SEO + parse id côté fiche).
+ * - Cœur : {@link useFavorites} — `preventDefault` + `stopPropagation` pour ne pas
+ *   suivre le `<Link>` parent (test unitaire brief).
+ * - `priority` : LCP sur les premières cards de la grille.
+ */
 export function PropertyCard({
   property,
   priority = false,

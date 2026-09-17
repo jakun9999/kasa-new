@@ -23,8 +23,8 @@ Dernière mise à jour : **10 septembre 2026**.
 - [x] Dossier du front → **ce repo `kasa-new`**
 - [x] TypeScript ou JavaScript → **TypeScript**
 - [x] Sass vs CSS Modules → **Tailwind v4** (`@theme` dans `globals.css`)
-- [ ] JSDoc seul vs Storybook
-- [ ] Contenu exact sprint 1 vs 2 → **tranché** (voir `backlog.md`)
+- [x] JSDoc seul vs Storybook → **TypeDoc** (`npm run docs` → `./docs`)
+- [x] Contenu exact sprint 1 vs 2 → **tranché** (voir `backlog.md`)
 - [ ] Hébergement front + stratégie backend en démo
 
 ## Sprint 1
@@ -39,7 +39,7 @@ Dernière mise à jour : **10 septembre 2026**.
 - [x] 7b. Schema.org Accommodation + meta fiche (`soutenance/schema-org-meta.md`) — reste Lighthouse vert
 - [x] 7c. Inventaire SSR vs Client (`soutenance/ssr-vs-client.md`)
 - [ ] 8. Accessibilité
-- [ ] 9. JSDoc / Storybook + README
+- [x] 9. TypeDoc + README (`npm run docs`)
 - [ ] Déploiement
 - [ ] Répétition orale 15 min
 

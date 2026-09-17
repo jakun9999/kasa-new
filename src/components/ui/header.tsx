@@ -265,7 +265,17 @@ function HeaderNav() {
   );
 }
 
-/** Header wrappé : `useSearchParams` exige une boundary Suspense. */
+/**
+ * Header Figma : barre desktop (782×56) + barre mobile + panneau overlay.
+ *
+ * @remarks
+ * - `HoverBoldLabel` : réserve la largeur du `font-bold` (fantôme invisible en grille)
+ *   pour éviter le décalage de layout au hover.
+ * - Favoris actifs = `pathname === "/"` **et** `?favoris=1` (sinon conflit avec Accueil).
+ * - `MessagesLink` : `/messages` si connecté, sinon `/login?next=/messages`.
+ * - Menu mobile : Escape pour fermer ; panneau en overlay (ne pousse pas le flux).
+ * - `Suspense` autour de la nav : `useSearchParams` exige une boundary.
+ */
 export default function Header() {
   return (
     <Suspense

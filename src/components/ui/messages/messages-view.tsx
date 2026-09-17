@@ -48,8 +48,13 @@ function formatDateLabel(date: Date): string {
 }
 
 /**
- * Shell messagerie : liste + fil + composer.
- * Desktop : les deux colonnes. Mobile : liste **ou** fil (Retour → liste).
+ * Shell messagerie (mocks sprint 1 — envoi réel = sprint 2).
+ *
+ * @remarks
+ * - **Desktop** : liste + fil côte à côte.
+ * - **Mobile** : soit la liste, soit le fil (`showThreadMobile`). Au passage liste→fil,
+ *   focus sur « Retour » ; au retour, focus sur la ligne `aria-current` (WCAG 2.4.3).
+ * - Données : {@link MOCK_CONVERSATIONS} — pas d’API messages encore.
  */
 export function MessagesView() {
   const [conversations, setConversations] =

@@ -45,6 +45,18 @@ function readFrenchApiMessage(body: unknown): string | null {
   return message;
 }
 
+/**
+ * Formulaire login (cookie JWT HttpOnly posé par le BFF `POST /api/login`).
+ *
+ * @remarks
+ * Flux post-succès :
+ * 1. `setAuthUser` (Context) ;
+ * 2. `safeNextPath(?next)` — refuse les URLs externes / protocol-relative ;
+ * 3. si next = messagerie → `markMessagesArrivedFromLogin` (évite Retour → `/login`) ;
+ * 4. `router.replace` + `refresh` (pas `push`, pour ne pas empiler `/login` dans l’historique).
+ *
+ * Enveloppé dans `<Suspense>` à cause de `useSearchParams`.
+ */
 export const LoginForm = () => {
   return (
     <Suspense fallback={null}>

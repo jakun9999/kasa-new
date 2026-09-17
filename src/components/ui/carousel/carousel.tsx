@@ -15,10 +15,13 @@ type CarouselProps = {
 };
 
 /**
- * Galerie fiche responsive :
- * - mobile / tablette : grande image pleine largeur, **4 miniatures en une rangée** en dessous ;
- * - desktop (`lg+`) : gabarit Figma 616 × 358 px, grande image + grille 2×2 à droite.
- * Miniatures synchronisées avec la photo principale ; flèches en overlay ; boucle ; clavier ← →.
+ * Galerie fiche (tests unitaires obligatoires brief : next / prev / wrap / 1 image).
+ *
+ * @remarks
+ * - **Plusieurs images** : flèches overlay + clavier ← → ; navigation circulaire
+ *   `(index ± 1 + n) % n`.
+ * - **Une seule image** : pas de flèches ni de compteur (maquette Figma).
+ * - Layout : mobile = grande image + 4 thumbs en rangée ; `lg+` = 616×358 + grille 2×2.
  */
 export function Carousel({ images, alt, className = "" }: CarouselProps) {
   const [index, setIndex] = useState(0);

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/lib",
+    "src/context",
+    "src/schemas",
+    "src/components",
+    "src/app"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "docs",
+  "tsconfig": "./tsconfig.json",
+  "name": "Kasa — documentation technique",
+  "includeVersion": true,
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/node_modules/**"
+  ],
+  "excludePrivate": true,
+  "excludeExternals": true,
+  "skipErrorChecking": true,
+  "readme": "README.md",
+  "navigation": {
+    "includeCategories": true
+  },
+  "categorizeByGroup": true,
+  "sort": ["source-order"],
+  "visibilityFilters": {
+    "protected": false,
+    "private": false,
+    "inherited": true,
+    "external": false
+  }
+}

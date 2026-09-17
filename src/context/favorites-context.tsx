@@ -114,8 +114,16 @@ function extractFavoriteIds(payload: unknown): FavoriteIds {
 }
 
 /**
- * Favoris : visiteur = `localStorage` ; connecté = API (`/api/favorites`).
- * Le filtre « Vos favoris » lit uniquement ces ids — jamais ceux de l’URL.
+ * Favoris : **visiteur** = `localStorage` (brief sprint 1) ; **connecté** = API `/api/favorites`.
+ *
+ * @remarks
+ * - `useSyncExternalStore` pour le mode local : snapshot stable SSR (`[]`) puis hydrate client
+ *   sans mismatch React.
+ * - Event custom `kasa:favorites-change` : sync entre onglets / même onglet après écriture
+ *   (le `storage` natif ne fire pas dans l’onglet émetteur).
+ * - Login / logout : reset d’état au **render** (pas dans un effect) pour le lint React 19.
+ * - Toggle connecté : update optimiste + rollback si l’API échoue.
+ * - Le filtre `/?favoris=1` lit **uniquement** ces ids — jamais des ids dans l’URL.
  */
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const { authUser, isReady: isAuthReady } = useAuth();
@@ -248,7 +256,10 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/** Accès au contexte favoris. À n’utiliser que sous {@link FavoritesProvider}. */
+/**
+ * Accès favoris. Hors {@link FavoritesProvider} (HMR / navigation RSC) → fallback vide
+ * plutôt qu’un throw (évite un crash intermittent en démo).
+ */
 export function useFavorites() {
   const context = useContext(FavoritesContext);
   // Hors provider (navigation RSC / Fast Refresh / double instance de module) :
