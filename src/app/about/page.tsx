@@ -27,7 +27,7 @@ export default function About() {
       </div>
 
       {/* `w-full` (pas `lg:w-278.75`) : sinon overflow dès que le viewport < 1115px + gouttières. */}
-      <div className="relative aspect-[4/3] w-full min-w-0 overflow-hidden rounded-[20px] lg:aspect-auto lg:h-114.5">
+      <div className="relative aspect-4/3 w-full min-w-0 overflow-hidden rounded-[20px] lg:aspect-auto lg:h-114.5">
         <Image
           src="/about_1.png"
           alt="Maison moderne en bois au milieu de la nature"
@@ -67,7 +67,7 @@ export default function About() {
           </p>
         </div>
 
-        <div className="relative aspect-[4/3] w-full min-w-0 overflow-hidden rounded-[20px] lg:aspect-auto lg:h-114.5 lg:w-123.5 lg:max-w-full lg:shrink-0">
+        <div className="relative aspect-4/3 w-full min-w-0 overflow-hidden rounded-[20px] lg:aspect-auto lg:h-114.5 lg:w-123.5 lg:max-w-full lg:shrink-0">
           <Image
             src="/about_2.png"
             alt="Chalet contemporain éclairé au crépuscule"

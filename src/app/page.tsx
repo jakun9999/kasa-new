@@ -54,7 +54,7 @@ export default async function Home({ searchParams }: HomeProps) {
         </p>
       </div>
       {!showFavoritesOnly ? (
-        <div className="relative aspect-[1115/458] w-full min-w-0 shrink-0 overflow-hidden rounded-[20px]">
+        <div className="relative aspect-1115/458 w-full min-w-0 shrink-0 overflow-hidden rounded-[20px]">
           <Image
             src="/hero.jpg"
             alt="Paysage et hébergements Kasa"
