@@ -4,7 +4,8 @@ import { z } from "zod";
 export const AuthUserSchema = z.object({
   id: z.number(),
   name: z.string(),
-  email: z.email(),
+  /** OpenAPI : `email` nullable / non requis — on normalise en string (éventuellement vide). */
+  email: z.string(),
   picture: z.string(),
   role: z.enum(["owner", "client", "admin"]),
 });
@@ -22,7 +23,7 @@ export function parseAuthUser(raw: unknown): AuthUser | null {
     name: record.name,
     role: record.role,
     picture: typeof record.picture === "string" ? record.picture : "",
-    email: typeof record.email === "string" ? record.email : undefined,
+    email: typeof record.email === "string" ? record.email : "",
   });
   return parsed.success ? parsed.data : null;
 }

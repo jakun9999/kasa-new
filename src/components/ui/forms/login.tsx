@@ -179,13 +179,18 @@ const LoginFormInner = () => {
         <div className="flex flex-col items-center gap-3">
           <Link
             href="/forgot-password"
+            prefetch={false}
             className="text-center text-body font-normal text-kasa-red"
           >
             Mot de passe oublié
           </Link>
           <p className="text-center text-body font-normal text-kasa-red">
             Pas encore de compte ?{" "}
-            <Link href="/register" className="font-medium text-kasa-red">
+            <Link
+              href="/register"
+              prefetch={false}
+              className="font-medium text-kasa-red"
+            >
               Inscrivez-vous
             </Link>
           </p>

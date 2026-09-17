@@ -48,7 +48,7 @@ export async function GET() {
         ? payload.email
         : typeof record.email === "string"
           ? record.email
-          : undefined,
+          : "",
   });
 
   if (!parsed.success) {

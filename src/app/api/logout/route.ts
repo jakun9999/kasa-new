@@ -1,23 +1,33 @@
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-
-const expiredCookie = {
-  path: "/",
-  sameSite: "strict" as const,
-  secure: process.env.NODE_ENV === "production",
-  maxAge: 0,
-};
+import { NextResponse, type NextRequest } from "next/server";
 
 /**
  * Déconnexion : expire `token` (HttpOnly). N’invalide pas le JWT côté backend
  * (pas d’endpoint de révocation). Idempotent si déjà déconnecté.
  * Les favoris visiteur sont vidés côté client (`localStorage`) dans `logout()`.
  */
-export async function POST() {
-  const cookieStore = await cookies();
+export async function POST(request: NextRequest) {
+  const forwardedProto = request.headers
+    .get("x-forwarded-proto")
+    ?.split(",")[0]
+    ?.trim();
+  const secure =
+    forwardedProto === "https" || process.env.NODE_ENV === "production";
 
-  cookieStore.set("token", "", { ...expiredCookie, httpOnly: true });
-  cookieStore.set("user_data", "", { ...expiredCookie, httpOnly: false });
+  const response = NextResponse.json({ success: true });
+  response.cookies.set("token", "", {
+    httpOnly: true,
+    secure,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+  response.cookies.set("user_data", "", {
+    httpOnly: false,
+    secure,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
 
-  return NextResponse.json({ success: true });
+  return response;
 }

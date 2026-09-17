@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { parseAuthUser } from "@/schemas/auth-user-schema";
 import { LoginSchema } from "@/schemas/login-schema";
 import { SESSION_MAX_AGE_SECONDS } from "@/lib/api-server";
@@ -117,28 +116,38 @@ export async function POST(request: Request) {
       );
     }
 
-    const cookieStore = await cookies();
+    // Poser le cookie sur la **réponse** (plus fiable derrière Passenger/proxy
+    // que `cookies().set` seul — sinon la messagerie ne voit pas la session).
+    const forwardedProto = request.headers
+      .get("x-forwarded-proto")
+      ?.split(",")[0]
+      ?.trim();
+    const secure =
+      forwardedProto === "https" || process.env.NODE_ENV === "production";
 
-    cookieStore.set("token", token, {
+    const response = NextResponse.json({
+      success: true,
+      user: safeAuthUser,
+    });
+
+    response.cookies.set("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure,
+      sameSite: "lax",
       maxAge: SESSION_MAX_AGE_SECONDS,
       path: "/",
     });
 
-    cookieStore.set("user_data", "", {
+    // Nettoie l’ancien cookie non HttpOnly s’il existe encore.
+    response.cookies.set("user_data", "", {
       httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure,
+      sameSite: "lax",
       maxAge: 0,
       path: "/",
     });
 
-    return NextResponse.json({
-      success: true,
-      user: safeAuthUser,
-    });
+    return response;
   } catch (error) {
     console.error("Login: erreur inattendue", error);
     return NextResponse.json(
