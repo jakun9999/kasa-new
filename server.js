@@ -23,6 +23,15 @@ const handle = app.getRequestHandler();
 app
   .prepare()
   .then(() => {
+    const hasJwt = Boolean(
+      process.env.JWT_SECRET && String(process.env.JWT_SECRET).trim(),
+    );
+    const apiUrl =
+      process.env.API_URL_INTERNAL || process.env.NEXT_PUBLIC_API_URL || "";
+    console.error(
+      `[kasa] boot dir=${dir} NODE_ENV=${process.env.NODE_ENV} JWT_SECRET=${hasJwt ? "oui" : "NON ⚠️"} API_URL=${apiUrl || "NON ⚠️"}`,
+    );
+
     const server = createServer((req, res) => {
       const parsedUrl = parse(req.url, true);
       handle(req, res, parsedUrl);

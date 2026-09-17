@@ -146,7 +146,6 @@ function HeaderNav() {
               alt="Logo Kasa"
               width={113}
               height={40}
-              priority
             />
           </Link>
 
@@ -195,7 +194,6 @@ function HeaderNav() {
               alt="Logo Kasa"
               width={46}
               height={53}
-              priority
             />
           </Link>
           <button

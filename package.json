@@ -13,6 +13,7 @@
     "docs:watch": "typedoc --watch"
   },
   "dependencies": {
+    "jsonwebtoken": "9.0.3",
     "next": "16.3.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -23,6 +24,7 @@
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.7",
+    "@types/jsonwebtoken": "9.0.10",
     "@types/node": "^26.5.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",

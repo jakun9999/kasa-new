@@ -15,8 +15,19 @@ export const SESSION_MAX_AGE_SECONDS = 24 * 60 * 60;
  */
 export async function getSessionToken(): Promise<string | undefined> {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token || !(await isSessionJwtUsable(token))) {
+  let token = cookieStore.get("token")?.value;
+  if (!token) {
+    return undefined;
+  }
+  // Certains reverse-proxy / navigateurs ré-encodent la valeur du cookie.
+  if (token.includes("%")) {
+    try {
+      token = decodeURIComponent(token);
+    } catch {
+      /* garde la valeur brute */
+    }
+  }
+  if (!(await isSessionJwtUsable(token))) {
     return undefined;
   }
   return token;

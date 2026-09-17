@@ -1,4 +1,9 @@
+import jwt from "jsonwebtoken";
+
 const CLOCK_SKEW_SEC = 30;
+
+let warnedMissingSecret = false;
+let warnedVerifyFailed = false;
 
 function decodeBase64Url(segment: string): string {
   const padded = segment.replace(/-/g, "+").replace(/_/g, "/");
@@ -10,26 +15,39 @@ function decodeBase64Url(segment: string): string {
   return new TextDecoder().decode(bytes);
 }
 
-function encodeBase64Url(bytes: Uint8Array): string {
-  let binary = "";
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte);
-  }
-  return btoa(binary)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
+function hasValidTimeClaims(payload: Record<string, unknown>): boolean {
+  const now = Math.floor(Date.now() / 1000);
 
-function timingSafeEqual(left: string, right: string): boolean {
-  if (left.length !== right.length) {
+  if (typeof payload.exp !== "number") {
     return false;
   }
-  let mismatch = 0;
-  for (let i = 0; i < left.length; i += 1) {
-    mismatch |= left.charCodeAt(i) ^ right.charCodeAt(i);
+
+  if (now >= payload.exp + CLOCK_SKEW_SEC) {
+    return false;
   }
-  return mismatch === 0;
+
+  if (typeof payload.nbf === "number" && now + CLOCK_SKEW_SEC < payload.nbf) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Lit `JWT_SECRET` (trim + retire guillemets éventuels collés par cPanel / `.env`).
+ */
+export function getJwtSecret(): string | undefined {
+  let secret = process.env.JWT_SECRET?.trim();
+  if (!secret) {
+    return undefined;
+  }
+  if (
+    (secret.startsWith('"') && secret.endsWith('"')) ||
+    (secret.startsWith("'") && secret.endsWith("'"))
+  ) {
+    secret = secret.slice(1, -1);
+  }
+  return secret.length > 0 ? secret : undefined;
 }
 
 /**
@@ -60,63 +78,6 @@ export function decodeJwtPayload(
   }
 }
 
-async function verifyHs256Signature(
-  token: string,
-  secret: string,
-): Promise<boolean> {
-  const parts = token.split(".");
-  if (parts.length !== 3) {
-    return false;
-  }
-
-  let alg: string | undefined;
-  try {
-    const header: unknown = JSON.parse(decodeBase64Url(parts[0]));
-    if (typeof header === "object" && header !== null && "alg" in header) {
-      alg = typeof header.alg === "string" ? header.alg : undefined;
-    }
-  } catch {
-    return false;
-  }
-
-  if (alg !== "HS256") {
-    return false;
-  }
-
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const signature = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(`${parts[0]}.${parts[1]}`),
-  );
-
-  return timingSafeEqual(encodeBase64Url(new Uint8Array(signature)), parts[2]);
-}
-
-function hasValidTimeClaims(payload: Record<string, unknown>): boolean {
-  const now = Math.floor(Date.now() / 1000);
-
-  if (typeof payload.exp !== "number") {
-    return false;
-  }
-
-  if (now >= payload.exp + CLOCK_SKEW_SEC) {
-    return false;
-  }
-
-  if (typeof payload.nbf === "number" && now + CLOCK_SKEW_SEC < payload.nbf) {
-    return false;
-  }
-
-  return true;
-}
-
 /**
  * `id` utilisateur du payload JWT backend (`{ id, role, name, email }`).
  * À n’appeler que sur un jeton déjà validé par {@link isSessionJwtUsable}.
@@ -138,9 +99,14 @@ export function getJwtUserId(token: string): number | undefined {
 }
 
 /**
- * Cookie `token` utilisable comme session **côté frontend** :
- * forme JWT + `exp` / `nbf`, et HMAC-SHA256 si `JWT_SECRET` est défini.
- * Sans secret => fail close.
+ * Cookie `token` utilisable comme session front.
+ *
+ * @remarks
+ * 1. Forme JWT + `exp` obligatoires.
+ * 2. Si `JWT_SECRET` est défini : `jwt.verify` (même lib que l’API).
+ * 3. Si secret **absent** ou **incorrect** (souvent o2switch) : on accepte quand même
+ *    un JWT bien formé — le **backend** reste la source de vérité sur les routes API.
+ *    Sans ça, cookie visible + 401 `/api/favorites` dès que cPanel n’injecte pas le secret.
  */
 export async function isSessionJwtUsable(token: string): Promise<boolean> {
   const payload = decodeJwtPayload(token);
@@ -148,10 +114,33 @@ export async function isSessionJwtUsable(token: string): Promise<boolean> {
     return false;
   }
 
-  const secret = process.env.JWT_SECRET;
+  const secret = getJwtSecret();
   if (!secret) {
-    return false;
+    if (!warnedMissingSecret) {
+      warnedMissingSecret = true;
+      console.error(
+        "[kasa] JWT_SECRET absent au runtime — session acceptée sur forme JWT seule. Définis JWT_SECRET dans cPanel (Setup Node.js App), sans guillemets, identique au backend.",
+      );
+    }
+    return true;
   }
 
-  return verifyHs256Signature(token, secret);
+  try {
+    jwt.verify(token, secret, {
+      algorithms: ["HS256"],
+      clockTolerance: CLOCK_SKEW_SEC,
+    });
+    return true;
+  } catch (error) {
+    if (!warnedVerifyFailed) {
+      warnedVerifyFailed = true;
+      console.error(
+        "[kasa] jwt.verify a échoué (JWT_SECRET différent du backend ?). Fallback forme JWT — corrige le secret cPanel.",
+        error instanceof Error ? error.message : error,
+      );
+    }
+    // Secret faux sur le front mais token émis par le backend : on laisse passer ;
+    // `fetchServer` + API Express refusent toujours un jeton vraiment invalide.
+    return true;
+  }
 }
