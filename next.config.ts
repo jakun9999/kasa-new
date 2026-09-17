@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "api.kasa.demo.cassiandev.net",
+      },
+      {
+        protocol: "https",
         hostname: "s3-eu-west-1.amazonaws.com",
         pathname: "/course.oc-static.com/**",
       },

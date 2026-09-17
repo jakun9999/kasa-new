@@ -44,6 +44,10 @@ next-env.d.ts
 # Préparation soutenance
 /soutenance
 
+# Déploiement o2switch (artefact local)
+/kasa-o2switch-deploy.zip
+/deploy-o2switch/
+
 # sitemap.xml
 sitemap.xml
 
