@@ -28,10 +28,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
     return notFound();
   }
   const property = propertySchema.parse(await response.json());
-  const carouselImages = buildPropertyImages(
-    property.cover,
-    property.pictures,
-  );
+  const carouselImages = buildPropertyImages(property.cover, property.pictures);
 
   return (
     <article className="mx-auto flex w-full max-w-242 flex-col gap-10 pt-4">
@@ -71,7 +68,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
             {/* Image de l'hôte */}
             <Image
               src={property.host?.picture || ""}
-              alt={property.host?.name || ""}
+              alt={"Photo de " + property.host?.name || ""}
               width={82}
               height={82}
               className="rounded-kasa-cta object-cover w-20.5 h-20.5"
