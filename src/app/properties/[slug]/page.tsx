@@ -1,37 +1,83 @@
-import { propertySchema } from "@/schemas/property";
-import { fetchServer } from "@/lib/api-server";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { BackIcon } from "@/components/icons/back-icon";
-import { StarIcon } from "@/components/icons/star-icon";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Button } from "@/components/ui/button";
+import { BackIcon } from "@/components/icons/back-icon";
+import { StarIcon } from "@/components/icons/star-icon";
 import { buildPropertyImages } from "@/components/ui/carousel/carousel-utils";
 import { CarouselSkeleton } from "@/components/ui/carousel/carousel-skeleton";
 import { DelayedCarousel } from "@/components/ui/carousel/delayed-carousel";
 import { PropertyInfo } from "@/components/ui/collapse/property-info";
 import { PropertyContactActions } from "@/components/ui/property/property-contact-actions";
+import { JsonLd } from "@/components/seo/json-ld";
+import { getPropertyBySlugParam } from "@/lib/property";
+import { buildPropertyAccommodationJsonLd } from "@/lib/seo/property-json-ld";
+import { getSiteUrl, propertyHref } from "@/lib/site-url";
 
 interface PropertyPageProps {
   params: Promise<{ slug: string }>;
 }
 
+function propertyMetaDescription(property: {
+  title: string;
+  description?: string | null;
+  location?: string | null;
+  price_per_night: number;
+}): string {
+  if (property.description?.trim()) {
+    const trimmed = property.description.trim();
+    return trimmed.length > 160 ? `${trimmed.slice(0, 157)}…` : trimmed;
+  }
+  const where = property.location ? ` à ${property.location}` : "";
+  return `Location ${property.title}${where} — ${property.price_per_night} € / nuit sur Kasa.`;
+}
+
+export async function generateMetadata({
+  params,
+}: PropertyPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const property = await getPropertyBySlugParam(slug);
+  if (!property) {
+    return { title: "Logement introuvable" };
+  }
+
+  const description = propertyMetaDescription(property);
+  const path = propertyHref(property.id, property.slug);
+  const images = property.cover ? [{ url: property.cover }] : undefined;
+
+  return {
+    title: property.title,
+    description,
+    alternates: {
+      canonical: path,
+    },
+    openGraph: {
+      title: property.title,
+      description,
+      url: `${getSiteUrl()}${path}`,
+      type: "website",
+      locale: "fr_FR",
+      siteName: "Kasa",
+      images,
+    },
+  };
+}
+
 export default async function PropertyPage({ params }: PropertyPageProps) {
   const { slug } = await params;
-  const id = slug.split("-")[0];
-
-  const response = await fetchServer(`/api/properties/${id}`, {
-    auth: false,
-  });
-  if (!response.ok) {
-    return notFound();
+  const property = await getPropertyBySlugParam(slug);
+  if (!property) {
+    notFound();
   }
-  const property = propertySchema.parse(await response.json());
+
   const carouselImages = buildPropertyImages(property.cover, property.pictures);
+  const jsonLd = buildPropertyAccommodationJsonLd(property);
 
   return (
     <article className="mx-auto flex w-full max-w-242 flex-col gap-10 pt-4">
+      <JsonLd data={jsonLd} />
       {/* Retour aux annonces — reste à gauche */}
       <Link href="/" className="self-start">
         <Button

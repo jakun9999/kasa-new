@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
 import { fetchServer } from "@/lib/api-server";
@@ -5,6 +6,19 @@ import { parseShowFavoritesOnly } from "@/lib/favorites";
 import { propertiesSchema } from "@/schemas/property";
 import { PropertyGrid } from "@/components/ui/cards/property-grid";
 import { PropertyCardGridSkeleton } from "@/components/ui/cards/property-card-skeleton";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Kasa — Location entre particuliers",
+  },
+  description:
+    "Chez vous, partout. Trouvez un hébergement unique entre particuliers sur Kasa.",
+  openGraph: {
+    title: "Kasa — Location entre particuliers",
+    description:
+      "Chez vous, partout. Trouvez un hébergement unique entre particuliers sur Kasa.",
+  },
+};
 
 type HomeProps = {
   searchParams: Promise<{ favoris?: string | string[] }>;

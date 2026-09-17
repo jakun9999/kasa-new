@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import { Providers } from "@/context/providers";
+import { getSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,8 +14,17 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Kasa",
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: "Kasa",
+    template: "%s — Kasa",
+  },
   description: "Location d’hébergements entre particuliers",
+  openGraph: {
+    siteName: "Kasa",
+    locale: "fr_FR",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -3,7 +3,8 @@ import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "À propos",
-  description: "À propos de Kaza",
+  description:
+    "Kasa, la location d’hébergements entre particuliers — notre mission et nos valeurs.",
 };
 
 export default function About() {

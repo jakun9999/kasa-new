@@ -1,17 +1,6 @@
 import type { MetadataRoute } from "next";
 import { propertiesSchema } from "@/schemas/property";
-
-/**
- * URL publique du front (sitemap = URLs absolues).
- * Prod / démo : définir `NEXT_PUBLIC_SITE_URL` (ex. https://kasa.example.com).
- */
-function getSiteUrl(): string {
-  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (fromEnv) {
-    return fromEnv.replace(/\/$/, "");
-  }
-  return "http://localhost:8080";
-}
+import { getSiteUrl, propertyHref } from "@/lib/site-url";
 
 /**
  * Sitemap dynamique (`/sitemap.xml`).
@@ -55,8 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const propertyRoutes: MetadataRoute.Sitemap = properties.map(
       (property) => ({
-        // Même format que `PropertyCard` : `/properties/{id}-{slug}`
-        url: `${siteUrl}/properties/${property.id}-${property.slug ?? ""}`,
+        url: `${siteUrl}${propertyHref(property.id, property.slug)}`,
         lastModified: now,
         changeFrequency: "weekly",
         priority: 0.8,
