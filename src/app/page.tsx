@@ -39,7 +39,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
   return (
     <main
-      className={`mx-auto flex max-w-278.75 flex-col items-center gap-10 lg:px-0 ${
+      className={`mx-auto flex w-full max-w-278.75 flex-col items-center gap-10 lg:px-0 ${
         showFavoritesOnly ? "px-[1.5px]" : "px-2"
       }`}
     >
@@ -54,17 +54,22 @@ export default async function Home({ searchParams }: HomeProps) {
         </p>
       </div>
       {!showFavoritesOnly ? (
-        <Image
-          src="/hero.jpg"
-          alt="Hero"
-          width={1115}
-          height={458}
-          className="aspect-1115/458 h-auto w-full rounded-[20px] object-cover"
-          priority
-          loading="eager"
-        />
+        <div className="relative aspect-[1115/458] w-full min-w-0 shrink-0 overflow-hidden rounded-[20px]">
+          <Image
+            src="/hero.jpg"
+            alt="Paysage et hébergements Kasa"
+            fill
+            sizes="(max-width: 1150px) 100vw, 1115px"
+            className="object-cover"
+            priority
+            fetchPriority="high"
+          />
+        </div>
       ) : null}
       <div className="flex w-full flex-col gap-8">
+        <h2 className="text-h2 font-medium text-kasa-black">
+          {showFavoritesOnly ? "Logements favoris" : "Nos logements"}
+        </h2>
         <Suspense
           fallback={
             showFavoritesOnly ? (

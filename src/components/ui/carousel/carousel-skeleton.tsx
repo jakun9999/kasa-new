@@ -4,7 +4,7 @@ const skeletonFill = "animate-pulse bg-kasa-gray-dark/25";
 export function CarouselSkeleton() {
   return (
     <div
-      className="relative grid w-full max-w-154 grid-cols-1 gap-2.5 lg:h-89.5 lg:w-154 lg:grid-cols-[303px_1fr] lg:grid-rows-1"
+      className="relative mx-auto grid w-full max-w-154 grid-cols-1 gap-2.5 lg:mx-0 lg:h-89.5 lg:w-154 lg:grid-cols-[303px_1fr] lg:grid-rows-1"
       aria-busy="true"
       aria-label="Chargement des photos"
     >

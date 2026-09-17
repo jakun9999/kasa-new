@@ -26,20 +26,24 @@ export default function About() {
         </div>
       </div>
 
-      <Image
-        src="/about_1.png"
-        alt="Maison moderne en bois au milieu de la nature"
-        width={1115}
-        height={458}
-        className="h-auto w-full rounded-[20px] object-cover aspect-4/3 lg:aspect-auto lg:h-114.5 lg:w-278.75"
-        priority
-      />
+      {/* `w-full` (pas `lg:w-278.75`) : sinon overflow dès que le viewport < 1115px + gouttières. */}
+      <div className="relative aspect-[4/3] w-full min-w-0 overflow-hidden rounded-[20px] lg:aspect-auto lg:h-114.5">
+        <Image
+          src="/about_1.png"
+          alt="Maison moderne en bois au milieu de la nature"
+          fill
+          sizes="(max-width: 1150px) 100vw, 1115px"
+          className="object-cover"
+          priority
+          fetchPriority="high"
+        />
+      </div>
 
       {/*
         Mobile / tablette : mission → image 2 → conclusion (colonne).
         Desktop : mission + conclusion à gauche, image 2 à droite (inchangé).
       */}
-      <div className="flex w-full flex-col gap-10 lg:flex-row lg:items-center lg:gap-4">
+      <div className="flex w-full min-w-0 flex-col gap-10 lg:flex-row lg:items-center lg:gap-4">
         <div className="flex min-w-0 flex-1 flex-col items-start justify-center gap-4">
           <h2 className="text-h3 font-bold text-kasa-red">
             Notre mission est simple :
@@ -63,13 +67,15 @@ export default function About() {
           </p>
         </div>
 
-        <Image
-          src="/about_2.png"
-          alt="Chalet contemporain éclairé au crépuscule"
-          width={494}
-          height={458}
-          className="h-auto w-full rounded-[20px] object-cover aspect-4/3 lg:aspect-auto lg:h-114.5 lg:w-123.5 lg:shrink-0"
-        />
+        <div className="relative aspect-[4/3] w-full min-w-0 overflow-hidden rounded-[20px] lg:aspect-auto lg:h-114.5 lg:w-123.5 lg:max-w-full lg:shrink-0">
+          <Image
+            src="/about_2.png"
+            alt="Chalet contemporain éclairé au crépuscule"
+            fill
+            sizes="(max-width: 1023px) 100vw, 494px"
+            className="object-cover"
+          />
+        </div>
 
         <p className="text-h3 font-medium text-kasa-red lg:hidden">
           Que vous cherchiez un appartement cosy en centre-ville, une maison en

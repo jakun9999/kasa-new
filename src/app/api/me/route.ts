@@ -1,28 +1,32 @@
 import { NextResponse } from "next/server";
 import { AuthUserSchema } from "@/schemas/auth-user-schema";
-import { fetchServer, requireApiSession, unauthorizedResponse } from "@/lib/api-server";
+import { fetchServer, getSessionToken } from "@/lib/api-server";
 import { decodeJwtPayload, getJwtUserId } from "@/lib/jwt";
 
 /**
- * Profil de session : lit le JWT HttpOnly, puis `GET /api/users/:id`.
- * Remplace l’ancien cookie `user_data` (lisible en JS).
+ * Sonde de session (hydratation client) : toujours **200**.
+ * - connecté → `{ success: true, user }`
+ * - visiteur / JWT absent ou invalide → `{ success: true, user: null }`
+ *
+ * Évite un 401 « bruit » dans la console / Lighthouse à chaque chargement anonyme.
+ * Les routes protégées (`/api/favorites`, etc.) gardent le 401.
  */
 export async function GET() {
-  const session = await requireApiSession();
-  if (session.response) {
-    return session.response;
+  const token = await getSessionToken();
+  if (!token) {
+    return NextResponse.json({ success: true, user: null });
   }
 
-  const userId = getJwtUserId(session.token);
+  const userId = getJwtUserId(token);
   if (userId === undefined) {
-    return unauthorizedResponse();
+    return NextResponse.json({ success: true, user: null });
   }
 
-  const payload = decodeJwtPayload(session.token);
+  const payload = decodeJwtPayload(token);
   const backendResponse = await fetchServer(`/api/users/${userId}`);
 
   if (!backendResponse.ok) {
-    return unauthorizedResponse();
+    return NextResponse.json({ success: true, user: null });
   }
 
   const row: unknown = await backendResponse.json();

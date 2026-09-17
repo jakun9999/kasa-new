@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, Suspense, useEffect, useState } from "react";
+import { Fragment, Suspense, useEffect, useState, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -33,6 +33,42 @@ function menuLinkClass(active: boolean, extra: string) {
     active
       ? "font-bold text-kasa-red"
       : "font-normal text-kasa-black hover:font-bold hover:text-kasa-red"
+  }`;
+}
+
+/**
+ * Garde la largeur du `font-bold` en permanence (fantôme invisible).
+ * Empilé en grille (même cellule) pour ne pas casser le centrage vertical du header.
+ */
+function HoverBoldLabel({
+  children,
+  bold,
+}: {
+  children: ReactNode;
+  bold: boolean;
+}) {
+  return (
+    <span className="inline-grid justify-items-center">
+      <span
+        className="invisible col-start-1 row-start-1 font-bold whitespace-nowrap select-none"
+        aria-hidden
+      >
+        {children}
+      </span>
+      <span
+        className={`col-start-1 row-start-1 whitespace-nowrap ${
+          bold ? "font-bold" : "font-normal group-hover:font-bold"
+        }`}
+      >
+        {children}
+      </span>
+    </span>
+  );
+}
+
+function desktopNavLinkClass(active: boolean) {
+  return `group text-body ${
+    active ? "text-kasa-red" : "text-kasa-black hover:text-kasa-red"
   }`;
 }
 
@@ -85,22 +121,23 @@ function HeaderNav() {
           <div className="flex items-center gap-7">
             <Link
               href="/"
-              className={menuLinkClass(homeActive, "text-body")}
+              className={desktopNavLinkClass(homeActive)}
               aria-current={homeActive ? "page" : undefined}
             >
-              Accueil
+              <HoverBoldLabel bold={homeActive}>Accueil</HoverBoldLabel>
             </Link>
             <Link
               href="/about"
-              className={menuLinkClass(
+              className={desktopNavLinkClass(
                 pathIsActive(pathname, "/about"),
-                "text-body",
               )}
               aria-current={
                 pathIsActive(pathname, "/about") ? "page" : undefined
               }
             >
-              À propos
+              <HoverBoldLabel bold={pathIsActive(pathname, "/about")}>
+                À propos
+              </HoverBoldLabel>
             </Link>
           </div>
           <Link href="/login">
@@ -118,10 +155,10 @@ function HeaderNav() {
           <div className="flex items-center gap-7 text-body text-kasa-red">
             <Link
               href="/"
-              className="inline-flex items-center gap-0 font-normal hover:font-bold"
+              className="group inline-flex items-center gap-0 text-kasa-red"
             >
               <PlusIcon className="h-3 w-3" />
-              Ajouter un logement
+              <HoverBoldLabel bold={false}>Ajouter un logement</HoverBoldLabel>
             </Link>
             <div className="flex items-center gap-2">
               <Link

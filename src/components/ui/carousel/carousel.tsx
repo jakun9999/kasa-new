@@ -55,7 +55,7 @@ export function Carousel({ images, alt, className = "" }: CarouselProps) {
       aria-label={`Photos — ${alt}`}
       tabIndex={showControls ? 0 : undefined}
       onKeyDown={onKeyDown}
-      className={`relative grid w-full max-w-154 grid-cols-1 gap-2.5 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kasa-black lg:h-89.5 lg:w-154 lg:grid-cols-[303px_1fr] lg:grid-rows-1 ${className}`.trim()}
+      className={`relative mx-auto grid w-full max-w-154 grid-cols-1 gap-2.5 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kasa-black lg:mx-0 lg:h-89.5 lg:w-154 lg:grid-cols-[303px_1fr] lg:grid-rows-1 ${className}`.trim()}
     >
       <div
         aria-label="Photo principale"

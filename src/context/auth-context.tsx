@@ -47,6 +47,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           typeof body === "object" && body !== null && "user" in body
             ? (body as { user: unknown }).user
             : undefined;
+        // `user: null` = visiteur (200 volontaire, pas d’erreur réseau).
+        if (user == null) {
+          if (!cancelled) {
+            setAuthUserState(null);
+            setIsReady(true);
+          }
+          return;
+        }
         const parsed = AuthUserSchema.safeParse(user);
         if (!cancelled) {
           setAuthUserState(parsed.success ? parsed.data : null);

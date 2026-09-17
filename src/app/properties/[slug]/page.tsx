@@ -35,8 +35,8 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
 
   return (
     <article className="mx-auto flex w-full max-w-242 flex-col gap-10 pt-4">
-      {/* Retour aux annonces */}
-      <Link href="/">
+      {/* Retour aux annonces — reste à gauche */}
+      <Link href="/" className="self-start">
         <Button
           size="long"
           color="gray"
@@ -48,19 +48,24 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
           Retour aux annonces
         </Button>
       </Link>
-      {/* Informations à propos du logement */}
-      <div className="flex flex-col gap-6 lg:flex-row lg:gap-2.5">
-        <div className="flex min-w-0 flex-1 flex-col gap-6">
+      {/*
+        Mobile / tablette : colonne centrée (carousel max-w-154 ne colle plus à gauche).
+        Desktop lg+ : rangée Figma, étirée sur toute la largeur.
+      */}
+      <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:items-start lg:gap-2.5">
+        <div className="flex w-full min-w-0 flex-1 flex-col items-center gap-6 lg:items-stretch">
           <Suspense fallback={<CarouselSkeleton />}>
             <DelayedCarousel
               images={carouselImages}
               alt={property.title || ""}
             />
           </Suspense>
-          <PropertyInfo property={property} />
+          <div className="w-full max-w-154 min-w-0 lg:w-154">
+            <PropertyInfo property={property} />
+          </div>
         </div>
         {/* Informations de l'hôte */}
-        <div className="flex w-full shrink-0 flex-col gap-2.5 rounded-kasa-cta border border-kasa-gray-light bg-kasa-white p-6 lg:h-70.25 lg:w-86.25">
+        <div className="flex w-full max-w-154 shrink-0 flex-col gap-2.5 rounded-kasa-cta border border-kasa-gray-light bg-kasa-white p-6 lg:h-70.25 lg:max-w-none lg:w-86.25">
           <p className="text-[16px] font-medium text-kasa-black">Votre hôte</p>
           <div className="flex py-4 gap-4.5 items-center justify-start">
             {/* Image de l'hôte */}
