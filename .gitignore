@@ -51,4 +51,7 @@ sitemap.xml
 robots.txt
 
 # cursor
-/.cursor
+.cursor
+
+# Figma
+.figma
