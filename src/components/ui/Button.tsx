@@ -1,4 +1,8 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import {
+  forwardRef,
+  type ButtonHTMLAttributes,
+  type ReactNode,
+} from "react";
 
 export type ButtonColor = "red" | "gray";
 export type ButtonSize = "short" | "medium" | "long";
@@ -66,27 +70,33 @@ const baseClass =
  * `width` / `height` optionnels : classes Tailwind qui remplacent le hug / 32×32
  * et désactivent le padding du variant (sinon `px-8` empêche un `w-12.5`).
  */
-export function Button({
-  size,
-  color,
-  icon,
-  width,
-  height,
-  className = "",
-  type = "button",
-  children,
-  ...rest
-}: ButtonProps) {
-  const hasExplicitBox = Boolean(width || height);
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  function Button(
+    {
+      size,
+      color,
+      icon,
+      width,
+      height,
+      className = "",
+      type = "button",
+      children,
+      ...rest
+    },
+    ref,
+  ) {
+    const hasExplicitBox = Boolean(width || height);
 
-  return (
-    <button
-      type={type}
-      className={`${baseClass} ${colorClass[color]} ${sizeClass[size]} ${hasExplicitBox ? "min-w-0 min-h-0 p-0" : sizePadding[size]} ${width ?? defaultWidth[size]} ${height ?? defaultHeight[size]} ${className}`.trim()}
-      {...rest}
-    >
-      {icon}
-      {size === "short" ? null : children}
-    </button>
-  );
-}
+    return (
+      <button
+        ref={ref}
+        type={type}
+        className={`${baseClass} ${colorClass[color]} ${sizeClass[size]} ${hasExplicitBox ? "min-w-0 min-h-0 p-0" : sizePadding[size]} ${width ?? defaultWidth[size]} ${height ?? defaultHeight[size]} ${className}`.trim()}
+        {...rest}
+      >
+        {icon}
+        {size === "short" ? null : children}
+      </button>
+    );
+  },
+);

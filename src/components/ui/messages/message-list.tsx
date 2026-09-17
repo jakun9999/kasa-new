@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { BackIcon } from "@/components/icons/back-icon";
@@ -27,6 +28,17 @@ export function MessageList({
   className = "",
 }: MessageListProps) {
   const router = useRouter();
+  const [listLoading, setListLoading] = useState(
+    process.env.NODE_ENV === "development",
+  );
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") {
+      return;
+    }
+    const timer = window.setTimeout(() => setListLoading(false), 2000);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   function handleBack() {
     // Post-login (`?next=/messages`) : l’historique pointe encore vers `/login`.
@@ -40,7 +52,14 @@ export function MessageList({
   return (
     <div
       className={`min-w-0 overflow-x-hidden bg-kasa-white py-6 lg:px-2 lg:py-2.75 ${className}`.trim()}
+      aria-busy={listLoading || undefined}
     >
+      {listLoading ? (
+        <p className="sr-only" aria-live="polite">
+          Chargement des conversations…
+        </p>
+      ) : null}
+
       {/* Même inset gauche pour Retour et « Messages » (px-2.5 = padding des lignes). */}
       <div className="px-2.5">
         <div className="flex h-17 w-full items-center">

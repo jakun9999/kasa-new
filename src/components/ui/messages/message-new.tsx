@@ -24,7 +24,7 @@ export type MessageNewProps = {
 /**
  * Barre de composition messagerie (Figma) : fond gris, champ + CTA short rouge.
  * Emprise : 390×86 (mobile) / 683×137 (desktop) — largeur fluide `w-full`, hauteurs figées.
- * Mobile = 1 ligne ; desktop = multiligne sans scroll (`overflow-hidden`).
+ * Mobile = 1 ligne ; desktop = multiligne. `overflow-y-auto` pour le zoom texte (1.4.4).
  */
 export function MessageNew({
   value: valueProp,
@@ -82,9 +82,9 @@ export function MessageNew({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`box-border h-21.5 w-full bg-kasa-white px-7.5 py-5.25 lg:h-34.25 ${className}`.trim()}
+      className={`box-border min-h-21.5 w-full bg-kasa-white px-7.5 py-5.25 lg:min-h-34.25 ${className}`.trim()}
     >
-      <div className="relative h-11 w-full lg:h-23.75">
+      <div className="relative min-h-11 w-full lg:min-h-23.75">
         <label htmlFor={inputId} className="sr-only">
           Envoyer un message
         </label>
@@ -98,7 +98,7 @@ export function MessageNew({
           placeholder="Envoyer un message"
           disabled={disabled}
           rows={1}
-          className="box-border h-full w-full resize-none overflow-hidden rounded-kasa-cta border border-kasa-gray-light bg-kasa-white pt-3.5 pr-14 pb-3.25 pl-3.75 text-caption font-normal whitespace-nowrap text-kasa-gray-dark placeholder:font-light placeholder:text-kasa-gray-dark/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kasa-red lg:pt-4 lg:pr-15.5 lg:pb-4 lg:pl-4 lg:whitespace-pre-wrap lg:wrap-break-wordbreak-words"
+          className="box-border min-h-11 w-full resize-none overflow-y-auto rounded-kasa-cta border border-kasa-gray-light bg-kasa-white pt-3.5 pr-14 pb-3.25 pl-3.75 text-caption font-normal whitespace-nowrap text-kasa-gray-dark placeholder:font-light placeholder:text-kasa-gray-dark/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kasa-red lg:min-h-23.75 lg:pt-4 lg:pr-15.5 lg:pb-4 lg:pl-4 lg:whitespace-pre-wrap lg:break-words"
         />
 
         <Button

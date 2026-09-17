@@ -7,5 +7,9 @@ export const metadata: Metadata = {
 };
 
 export default function MessagesPage() {
-  return <MessagesView />;
+  return (
+    <main className="flex min-h-0 w-full flex-1 flex-col">
+      <MessagesView />
+    </main>
+  );
 }

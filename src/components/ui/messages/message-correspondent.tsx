@@ -44,7 +44,10 @@ export function MessageCorrespondent({
             className="size-1 shrink-0 rounded-full bg-kasa-gray-dark"
             aria-hidden
           />
-          <time className="flex h-full items-center text-micro font-normal text-kasa-gray-dark">
+          <time
+            lang={/\b(am|pm)\b/i.test(sentAt) ? "en" : undefined}
+            className="flex h-full items-center text-micro font-normal text-kasa-gray-dark"
+          >
             {sentAt}
           </time>
         </div>

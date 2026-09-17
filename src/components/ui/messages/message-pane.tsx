@@ -9,6 +9,8 @@ export type { PaneMessage } from "@/schemas/messages-schema";
 
 type MessagePaneProps = {
   messages: PaneMessage[];
+  /** Nom accessible du fil (landmark / log). */
+  conversationLabel?: string;
   className?: string;
 };
 
@@ -37,13 +39,6 @@ function buildTimeline(messages: PaneMessage[]): TimelineEntry[] {
   return timeline;
 }
 
-/**
- * Écart avant l’entrée courante :
- * - après un séparateur de date → 24px
- * - deux messages correspondant → 40px
- * - correspondant ↔ me (ou deux me) → 24px
- * - premier élément → 0
- */
 function marginBefore(
   previous: TimelineEntry | undefined,
   current: TimelineEntry,
@@ -119,14 +114,11 @@ function MessageBubbleSkeleton({ align }: { align: "start" | "end" }) {
   );
 }
 
-/**
- * Placeholder fil (avatar + méta + bulles) pendant le chargement.
- */
+/** Visuel skeleton uniquement (`aria-hidden`) — le statut est porté par le parent. */
 export function MessagePaneSkeleton({ className = "" }: { className?: string }) {
   return (
     <div
       aria-hidden
-      aria-busy="true"
       className={`min-h-0 flex-1 overflow-y-auto bg-kasa-cream px-2 py-10 lg:px-10.5 ${className}`.trim()}
     >
       <div className="flex flex-col">
@@ -154,12 +146,14 @@ export function MessagePaneSkeleton({ className = "" }: { className?: string }) 
 }
 
 /**
- * Fil de conversation scrollable.
- * Prend la hauteur restante (`flex-1 min-h-0`) pour laisser le composer en bas hors scroll.
- * Fond cream Figma (`#FFFBF9`) — contraste avec les bulles blanches.
- * En `next dev`, skeleton 2 s pour la démo soutenance (comme `MessageListItem`).
+ * Fil de conversation scrollable (focusable pour le clavier — WCAG 2.1.1).
+ * En `next dev`, skeleton 2 s + annonce polie (comme la liste).
  */
-export function MessagePane({ messages, className = "" }: MessagePaneProps) {
+export function MessagePane({
+  messages,
+  conversationLabel = "Conversation",
+  className = "",
+}: MessagePaneProps) {
   const [devReady, setDevReady] = useState(
     process.env.NODE_ENV !== "development",
   );
@@ -173,51 +167,71 @@ export function MessagePane({ messages, className = "" }: MessagePaneProps) {
     return () => window.clearTimeout(timer);
   }, []);
 
+  const shellClass = `min-h-0 flex-1 overflow-y-auto bg-kasa-cream px-2 py-10 lg:px-10.5 ${className}`.trim();
+
   if (!devReady) {
-    return <MessagePaneSkeleton className={className} />;
+    return (
+      <div
+        className={shellClass}
+        aria-busy="true"
+        aria-live="polite"
+        aria-label={conversationLabel}
+      >
+        <p className="sr-only">Chargement de la conversation…</p>
+        <MessagePaneSkeleton />
+      </div>
+    );
   }
 
   return (
     <div
-      className={`min-h-0 flex-1 overflow-y-auto bg-kasa-cream px-2 py-10 lg:px-10.5 ${className}`.trim()}
+      className={shellClass}
       role="log"
-      aria-label="Conversation"
+      tabIndex={0}
+      aria-label={conversationLabel}
       aria-relevant="additions"
+      aria-busy="false"
     >
       <div className="flex flex-col">
-        {timeline.map((entry, index) => {
-          const previous = timeline[index - 1];
-          const spacing = marginBefore(previous, entry);
+        {timeline.length === 0 ? (
+          <p className="text-caption font-normal text-kasa-gray-dark">
+            Aucun message dans cette conversation.
+          </p>
+        ) : (
+          timeline.map((entry, index) => {
+            const previous = timeline[index - 1];
+            const spacing = marginBefore(previous, entry);
 
-          if (entry.kind === "date") {
+            if (entry.kind === "date") {
+              return (
+                <div key={`date-${entry.key}`} className={spacing}>
+                  <DateSeparator label={entry.label} />
+                </div>
+              );
+            }
+
+            const { message } = entry;
             return (
-              <div key={`date-${entry.key}`} className={spacing}>
-                <DateSeparator label={entry.label} />
+              <div key={message.id} className={spacing}>
+                {message.from === "correspondent" ? (
+                  <MessageCorrespondent
+                    correspondentName={message.authorName}
+                    correspondentPicture={message.authorPicture}
+                    sentAt={message.sentAt}
+                    content={message.content}
+                  />
+                ) : (
+                  <MessageMe
+                    correspondentName={message.authorName}
+                    correspondentPicture={message.authorPicture}
+                    sentAt={message.sentAt}
+                    content={message.content}
+                  />
+                )}
               </div>
             );
-          }
-
-          const { message } = entry;
-          return (
-            <div key={message.id} className={spacing}>
-              {message.from === "correspondent" ? (
-                <MessageCorrespondent
-                  correspondentName={message.authorName}
-                  correspondentPicture={message.authorPicture}
-                  sentAt={message.sentAt}
-                  content={message.content}
-                />
-              ) : (
-                <MessageMe
-                  correspondentName={message.authorName}
-                  correspondentPicture={message.authorPicture}
-                  sentAt={message.sentAt}
-                  content={message.content}
-                />
-              )}
-            </div>
-          );
-        })}
+          })
+        )}
       </div>
     </div>
   );
