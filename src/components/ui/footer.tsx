@@ -8,8 +8,8 @@ export function Footer() {
         <Image
           src="/logos/kasa_logo_picto.svg"
           alt="Logo Kasa"
-          width={46.04}
-          height={53.36}
+          width={46}
+          height={53}
         />
       </Link>
       <p className="text-kasa-gray-dark text-[12px] font-medium">

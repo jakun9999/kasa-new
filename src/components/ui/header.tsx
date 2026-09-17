@@ -144,11 +144,9 @@ function HeaderNav() {
             <Image
               src="/logos/kasa_logo_name.svg"
               alt="Logo Kasa"
-              width={113.229}
-              height={40.0}
-              className="h-10 w-auto"
+              width={113}
+              height={40}
               priority
-              loading="eager"
             />
           </Link>
 
@@ -195,8 +193,8 @@ function HeaderNav() {
             <Image
               src="/logos/kasa_logo_picto.svg"
               alt="Logo Kasa"
-              width={46.04}
-              height={53.36}
+              width={46}
+              height={53}
               priority
             />
           </Link>

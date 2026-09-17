@@ -31,11 +31,18 @@ type FavoritesContextType = {
   toggleFavorite: (propertyId: string) => void;
 };
 
-const FavoritesContext = createContext<FavoritesContextType | undefined>(
-  undefined,
-);
-
 const EMPTY_FAVORITE_IDS: FavoriteIds = [];
+
+/** Fallback si hors provider (navigation RSC / HMR) — évite un crash intermittent. */
+const FALLBACK_FAVORITES: FavoritesContextType = {
+  favoriteIds: EMPTY_FAVORITE_IDS,
+  isReady: false,
+  isFavorite: () => false,
+  toggleFavorite: () => {},
+};
+
+const FavoritesContext = createContext<FavoritesContextType>(FALLBACK_FAVORITES);
+
 const FAVORITES_CHANGE_EVENT = "kasa:favorites-change";
 
 let snapshotRaw: string | null | undefined = undefined;
@@ -236,8 +243,12 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 /** Accès au contexte favoris. À n’utiliser que sous {@link FavoritesProvider}. */
 export function useFavorites() {
   const context = useContext(FavoritesContext);
-  if (!context) {
-    throw new Error("useFavorites must be used in a FavoritesProvider");
+  // Hors provider (navigation RSC / Fast Refresh / double instance de module) :
+  // on retombe sur FALLBACK_FAVORITES au lieu de throw → plus de crash aléatoire.
+  if (process.env.NODE_ENV === "development" && context === FALLBACK_FAVORITES) {
+    console.warn(
+      "[favorites] useFavorites hors FavoritesProvider — fallback temporaire",
+    );
   }
   return context;
 }
