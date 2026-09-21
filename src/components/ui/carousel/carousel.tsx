@@ -64,27 +64,17 @@ export function Carousel({ images, alt, className = "" }: CarouselProps) {
         aria-label="Photo principale"
         className="relative col-start-1 row-start-1 aspect-303/357 w-full overflow-hidden rounded-kasa-cta lg:aspect-auto lg:h-full lg:w-75.75"
       >
-        {images.map((src, imageIndex) => {
-          const isCurrent = imageIndex === index;
-          return (
-            <div
-              key={`${src}-${imageIndex}`}
-              className={`absolute inset-0 transition-opacity duration-300 ease-in-out motion-reduce:transition-none ${
-                isCurrent ? "opacity-100" : "pointer-events-none opacity-0"
-              }`}
-              aria-hidden={!isCurrent}
-            >
-              <Image
-                src={src}
-                alt={`${alt} — photo ${imageIndex + 1}`}
-                fill
-                sizes="(max-width: 1024px) 100vw, 303px"
-                className="object-cover object-center"
-                priority={imageIndex === 0}
-              />
-            </div>
-          );
-        })}
+        {/* Une seule Image montée : sinon toutes les slides (opacity 0) sont
+            considérées « visibles » et se téléchargent d’un coup (Lighthouse mobile). */}
+        <Image
+          key={`${images[index]}-${index}`}
+          src={images[index]}
+          alt={`${alt} — photo ${index + 1}`}
+          fill
+          sizes="(max-width: 1024px) 100vw, 303px"
+          className="object-cover object-center"
+          priority={index === 0}
+        />
 
         {showControls ? (
           <p

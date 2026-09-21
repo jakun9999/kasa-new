@@ -30,13 +30,14 @@ export default function About() {
       {/* `w-full` (pas `lg:w-278.75`) : sinon overflow dès que le viewport < 1115px + gouttières. */}
       <div className="relative aspect-4/3 w-full min-w-0 overflow-hidden rounded-[20px] lg:aspect-auto lg:h-114.5">
         <Image
-          src="/about_1.png"
+          src="/about_1.jpg"
           alt="Maison moderne en bois au milieu de la nature"
           fill
-          sizes="(max-width: 1150px) 100vw, 1115px"
+          sizes="(max-width: 640px) 100vw, (max-width: 1150px) 100vw, 1115px"
           className="object-cover"
           priority
           fetchPriority="high"
+          quality={75}
         />
       </div>
 
@@ -70,11 +71,12 @@ export default function About() {
 
         <div className="relative aspect-4/3 w-full min-w-0 overflow-hidden rounded-[20px] lg:aspect-auto lg:h-114.5 lg:w-123.5 lg:max-w-full lg:shrink-0">
           <Image
-            src="/about_2.png"
+            src="/about_2.jpg"
             alt="Chalet contemporain éclairé au crépuscule"
             fill
             sizes="(max-width: 1023px) 100vw, 494px"
             className="object-cover"
+            quality={75}
           />
         </div>
 

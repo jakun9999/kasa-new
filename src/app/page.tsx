@@ -73,10 +73,11 @@ export default async function Home({ searchParams }: HomeProps) {
             src="/hero.jpg"
             alt="Paysage et hébergements Kasa"
             fill
-            sizes="(max-width: 1150px) 100vw, 1115px"
+            sizes="(max-width: 640px) 100vw, (max-width: 1150px) 100vw, 1115px"
             className="object-cover"
             priority
             fetchPriority="high"
+            quality={75}
           />
         </div>
       ) : null}

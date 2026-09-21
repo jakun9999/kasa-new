@@ -20,7 +20,8 @@ type PropertyCardProps = {
  * - Lien : `/properties/{id}-{slug}` (SEO + parse id côté fiche).
  * - Cœur : {@link useFavorites} — `preventDefault` + `stopPropagation` pour ne pas
  *   suivre le `<Link>` parent (test unitaire brief).
- * - `priority` : LCP sur les premières cards de la grille.
+ * - `priority` : LCP uniquement si la card est au-dessus de la ligne de flottaison
+ *   (ex. vue favoris sans hero). Sur l’accueil, le hero porte déjà le preload.
  */
 export function PropertyCard({
   property,
@@ -51,7 +52,6 @@ export function PropertyCard({
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover"
               priority={priority}
-              loading="eager"
               onLoad={() => setImageLoaded(true)}
             />
           ) : null}

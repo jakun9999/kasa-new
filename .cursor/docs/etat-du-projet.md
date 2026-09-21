@@ -36,7 +36,7 @@ Dernière mise à jour : **10 septembre 2026**.
 - [ ] 5. Détail + carrousel testé
 - [ ] 6. Favoris `localStorage` testés
 - [x] 7a. Sitemap (`app/sitemap.ts` + `soutenance/sitemap.md`)
-- [x] 7b. Schema.org Accommodation + meta fiche (`soutenance/schema-org-meta.md`) — reste Lighthouse vert
+- [x] 7b. Schema.org Product + Offer + meta fiche (`soutenance/schema-org-meta.md`) — reste Lighthouse vert
 - [x] 7c. Inventaire SSR vs Client (`soutenance/ssr-vs-client.md`)
 - [ ] 8. Accessibilité
 - [x] 9. TypeDoc + README (`npm run docs`)

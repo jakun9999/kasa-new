@@ -138,6 +138,7 @@ Checklist avant déploiement (Vercel, Node host, etc.) :
 |                            | `NEXT_PUBLIC_SITE_URL` → URL **finale** du front (ex. `https://kasa.ton-domaine.fr`)                                                                |
 |                            | `JWT_SECRET` → **même valeur** que le backend (secret serveur, jamais exposé au client)                                                             |
 | `next.config.ts`           | `images.remotePatterns` : hosts des photos (S3 OC + host API prod)                                                                                  |
+| Images / Lighthouse mobile | Assets locaux compressés (`public/hero.jpg`, `about_*.jpg`). Sur o2switch : **`npm ci` / `npm install` sur le serveur Linux** pour que `sharp` ait les binaires natifs — sinon `/_next/image` renvoie l’original (souvent 1 Mo+) |
 | Backend                    | CORS / cookies : le cookie `token` est HttpOnly sur le **domaine du front** (BFF Next) ; l’API Express reste appelée côté serveur via `fetchServer` |
 | `src/lib/site-url.ts`      | Fallback localhost si env manquante — en prod, **toujours** définir `NEXT_PUBLIC_SITE_URL`                                                          |
 | Sitemap                    | Régénéré via `src/app/sitemap.ts` ; vérifier `/sitemap.xml` après deploy                                                                            |

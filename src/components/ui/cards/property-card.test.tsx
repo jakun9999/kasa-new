@@ -37,6 +37,17 @@ vi.mock("next/link", () => ({
   },
 }));
 
+/** `AuthProvider` appelle `useRouter` (logout) — hors App Router en vitest. */
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+  }),
+}));
+
 const property: Property = {
   id: "prop-1",
   slug: "appart-cosy",

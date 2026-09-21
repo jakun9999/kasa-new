@@ -47,7 +47,14 @@ export function PropertyGrid({
     <ul className={propertyGridClassName}>
       {visible.map((property, index) => (
         <li key={property.id} className="min-w-0">
-          <PropertyCard property={property} priority={index === 0} />
+          {/*
+            Accueil : le hero a déjà `priority` (LCP). Favoris : pas de hero →
+            seule la 1ʳᵉ card visible mérite le preload (évite concurrence mobile).
+          */}
+          <PropertyCard
+            property={property}
+            priority={showFavoritesOnly && index === 0}
+          />
         </li>
       ))}
     </ul>

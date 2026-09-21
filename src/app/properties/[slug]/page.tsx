@@ -117,8 +117,8 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
               alt={"Photo de " + property.host?.name || ""}
               width={82}
               height={82}
+              sizes="82px"
               className="rounded-kasa-cta object-cover w-20.5 h-20.5"
-              loading="eager"
             />
             {/* Nom de l'hôte */}
             <p className="text-[16px] font-normal text-kasa-black">

@@ -4,19 +4,40 @@ import { getSiteUrl, propertyHref } from "@/lib/site-url";
 
 /**
  * JSON-LD Schema.org pour une fiche logement.
- * Type choisi : **Accommodation** (hébergement) + **Offer** imbriquée (prix / nuit).
- * On ne mappe que des champs fournis par l’API (pas de `petsAllowed` inventé).
+ *
+ * @remarks
+ * Type : **Product** + **Offer** (prix / nuit). Alternative brief à `Accommodation`.
+ * Le Rich Results Test Google ne reconnaît pas `Accommodation` seul (pas de rich
+ * result associé) ; `Product`/`Offer` apparaît dans l’outil. Champs = API uniquement.
  */
 export function buildPropertyAccommodationJsonLd(property: Property) {
   const siteUrl = getSiteUrl();
   const url = `${siteUrl}${propertyHref(property.id, property.slug)}`;
   const images = buildPropertyImages(property.cover, property.pictures);
 
+  const offer: Record<string, unknown> = {
+    "@type": "Offer",
+    price: property.price_per_night,
+    priceCurrency: "EUR",
+    availability: "https://schema.org/InStock",
+    url,
+  };
+
+  if (property.host?.name) {
+    offer.seller = {
+      "@type": "Person",
+      name: property.host.name,
+      ...(property.host.picture ? { image: property.host.picture } : {}),
+    };
+  }
+
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
-    "@type": "Accommodation",
+    "@type": "Product",
     name: property.title,
     url,
+    category: "Accommodation",
+    offers: offer,
   };
 
   if (property.description) {
@@ -28,27 +49,25 @@ export function buildPropertyAccommodationJsonLd(property: Property) {
   }
 
   if (property.location) {
-    // `location` API = texte libre (ex. « Paris, Île-de-France »), pas une adresse structurée.
-    jsonLd.address = {
-      "@type": "PostalAddress",
-      addressLocality: property.location,
-      addressCountry: "FR",
-    };
+    jsonLd.additionalProperty = [
+      {
+        "@type": "PropertyValue",
+        name: "location",
+        value: property.location,
+      },
+    ];
   }
 
-  jsonLd.offers = {
-    "@type": "Offer",
-    price: property.price_per_night,
-    priceCurrency: "EUR",
-    availability: "https://schema.org/InStock",
-    url,
-  };
-
   if (property.equipments && property.equipments.length > 0) {
-    jsonLd.amenityFeature = property.equipments.map((name) => ({
-      "@type": "LocationFeatureSpecification",
-      name,
+    const amenities = property.equipments.map((name) => ({
+      "@type": "PropertyValue",
+      name: "amenity",
+      value: name,
     }));
+    jsonLd.additionalProperty = [
+      ...((jsonLd.additionalProperty as unknown[]) ?? []),
+      ...amenities,
+    ];
   }
 
   if (
@@ -62,16 +81,6 @@ export function buildPropertyAccommodationJsonLd(property: Property) {
       reviewCount: property.ratings_count,
       bestRating: 5,
       worstRating: 1,
-    };
-  }
-
-  if (property.host?.name) {
-    jsonLd.provider = {
-      "@type": "Person",
-      name: property.host.name,
-      ...(property.host.picture
-        ? { image: property.host.picture }
-        : {}),
     };
   }
 
